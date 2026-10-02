@@ -266,8 +266,6 @@ export function printIngredientTicket(data: IngredientPrintData, format: Thermal
 
 // 2. Génération du TICKET 2 CM pour Produit/Dessert Décongelé (avec Logo Flocon + Mention légale HACCP)
 export function printFrozenDessertTicket(data: FrozenDessertPrintData, format: ThermalPaperFormat = 'sticker_2cm') {
-  const pad = (n: number) => n.toString().padStart(2, '0');
-  const formatDateShort = (d: Date) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
   const html = `
     <div style="border: 1.5px solid #000; padding: 2.5px 3px; border-radius: 2px; text-align: center; background: #fff;">
@@ -275,26 +273,21 @@ export function printFrozenDessertTicket(data: FrozenDessertPrintData, format: T
       <!-- LIGNE 1 : LOGO FLOCON DE NEIGE + NOM DU DESSERT -->
       <div style="display: flex; align-items: center; justify-content: center; gap: 4px; margin-bottom: 2px;">
         <span style="display: inline-block; vertical-align: middle; line-height: 1;">
-          <img src="/snowflake.png" alt="Flocon" style="width: 18px; height: 18px; object-fit: contain; vertical-align: middle;" onerror="this.outerHTML='❄️'" />
+          <img src="/snowflake.png" alt="Flocon" style="width: 20px; height: 20px; object-fit: contain; vertical-align: middle;" onerror="this.outerHTML='❄️'" />
         </span>
-        <span style="font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.1;">
+        <span style="font-size: 14.3px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.1;">
           ${data.dessertName}
         </span>
       </div>
 
       <!-- LIGNE 2 : MENTION SANITAIRE LÉGALE OBLIGATOIRE ENCADRÉE / FOND NOIR HAUTE VISIBILITÉ -->
-      <div style="background: #000; color: #fff; padding: 1.5px 2px; font-size: 8.5px; font-weight: 900; letter-spacing: 0.3px; text-transform: uppercase; margin: 2px 0;">
+      <div style="background: #000; color: #fff; padding: 1.5px 2px; font-size: 9.4px; font-weight: 900; letter-spacing: 0.3px; text-transform: uppercase; margin: 2px 0;">
         PRODUIT DÉCONGELÉ • NE PAS RECONGELER
       </div>
 
-      <!-- LIGNE 3 : DATE DÉCONGÉLATION ET DLC LIMITE -->
-      <div style="display: flex; justify-content: space-between; font-size: 8px; font-weight: 800; margin-top: 2px; padding: 0 1px;">
-        <span>Décongelé : <strong>${formatDateShort(data.thawDate)}</strong></span>
-        <span>DLC : <strong style="font-size: 9px; text-decoration: underline;">${formatDateShort(data.expiryDate)}</strong></span>
-      </div>
 
       <!-- LIGNE 4 : BAS DE TICKET DISCRET -->
-      <div style="display: flex; justify-content: space-between; font-size: 7px; font-weight: 700; color: #111; margin-top: 1.5px; border-top: 0.5px solid #000; padding-top: 1px;">
+      <div style="display: flex; justify-content: space-between; font-size: 7.7px; font-weight: 700; color: #111; margin-top: 1.5px; border-top: 0.5px solid #000; padding-top: 1px;">
         <span>Plaisirs &amp; Saveurs</span>
         <span>Stockage : +4°C max</span>
       </div>

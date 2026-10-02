@@ -2,6 +2,8 @@
 // Ultra-fast auto-updating PWA cache & Background Notifications
 
 const CACHE_VERSION = 'saveur-plaisir-v' + Date.now();
+// Photos travaux & factures PDF : gardées en cache durablement (jamais re-téléchargées)
+const MEDIA_CACHE = 'sp-media-v1';
 
 // Install immediately and activate without waiting
 self.addEventListener('install', (event) => {
@@ -13,7 +15,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.map((k) => caches.delete(k))
+        keys.filter((k) => k !== MEDIA_CACHE).map((k) => caches.delete(k))
       );
     }).then(() => self.clients.claim())
   );
@@ -40,6 +42,24 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Photos travaux & factures : cache d'abord, réseau seulement la 1ère fois
+  const path = new URL(event.request.url).pathname;
+  if (path.startsWith('/travaux/') || path.startsWith('/factures/')) {
+    event.respondWith(
+      caches.open(MEDIA_CACHE).then((cache) =>
+        cache.match(event.request).then(
+          (hit) =>
+            hit ||
+            fetch(event.request).then((res) => {
+              if (res && res.status === 200) cache.put(event.request, res.clone());
+              return res;
+            })
+        )
+      )
     );
     return;
   }

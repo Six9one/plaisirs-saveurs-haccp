@@ -11,10 +11,31 @@ interface TravauxPhoto {
 }
 
 const PHOTOS = travauxData as TravauxPhoto[];
+const thumb = (file: string) => file.replace('/travaux/', '/travaux/thumbs/');
+
+// Précharge toutes les photos une seule fois (ensuite gardées en cache par le navigateur)
+let preloaded = false;
+function preloadAll() {
+  if (preloaded) return;
+  preloaded = true;
+  PHOTOS.forEach((p) => {
+    const t = new Image();
+    t.src = thumb(p.file);
+  });
+  PHOTOS.forEach((p) => {
+    const f = new Image();
+    f.decoding = 'async';
+    f.src = p.file;
+  });
+}
 
 export const TravauxModule: React.FC = () => {
   const [index, setIndex] = useState<number | null>(null);
   const [touchX, setTouchX] = useState<number | null>(null);
+
+  useEffect(() => {
+    preloadAll();
+  }, []);
 
   const next = useCallback(() => setIndex((i) => (i === null ? i : (i + 1) % PHOTOS.length)), []);
   const prev = useCallback(() => setIndex((i) => (i === null ? i : (i - 1 + PHOTOS.length) % PHOTOS.length)), []);
@@ -74,7 +95,7 @@ export const TravauxModule: React.FC = () => {
                   onClick={() => setIndex(i)}
                   className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 cursor-pointer"
                 >
-                  <img src={p.file} alt={p.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                  <img src={thumb(p.file)} alt={p.title} decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                   <div className="absolute inset-x-0 bottom-0 p-2.5 bg-gradient-to-t from-black/85 to-transparent text-left">
                     <div className="text-sm font-black text-white leading-tight">{p.title}</div>
                   </div>
