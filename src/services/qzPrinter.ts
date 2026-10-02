@@ -120,34 +120,51 @@ export function setSelectedPrinter(name: string | null) {
 // Imprimante de la boutique, choisie automatiquement si aucune n'est sélectionnée
 const DEFAULT_PRINTER_MATCH = /TSP\s*1|TSP143|Star/i;
 
-export async function qzPrintHtml(html: string, widthMm: number, heightMm?: number): Promise<boolean> {
-  if (!(await qzConnect())) return false;
-  let printer = getSelectedPrinter();
-  if (!printer) {
-    const list = await qzListPrinters();
-    printer = list?.find((p) => DEFAULT_PRINTER_MATCH.test(p)) ?? null;
-    if (!printer) return false;
-    setSelectedPrinter(printer);
-  }
-  const inch = (mm: number) => Math.round((mm / 25.4) * 1000) / 1000;
+let ready = false;
+let warming: Promise<void> | null = null;
+
+// Connexion à QZ Tray au démarrage de l'app (une seule fois), pour imprimer instantanément ensuite
+export function qzWarmUp(): Promise<void> {
+  if (warming) return warming;
+  warming = (async () => {
+    if (!(await qzConnect())) {
+      ready = false;
+      return;
+    }
+    if (!getSelectedPrinter()) {
+      const list = await qzListPrinters();
+      const match = list?.find((p) => DEFAULT_PRINTER_MATCH.test(p));
+      if (match) setSelectedPrinter(match);
+    }
+    ready = !!getSelectedPrinter();
+    qz.websocket.setClosedCallbacks(() => {
+      ready = false;
+      warming = null;
+      setTimeout(() => qzWarmUp(), 3000);
+    });
+  })().finally(() => {
+    if (!ready) warming = null;
+  });
+  return warming;
+}
+
+export function isQzReady(): boolean {
+  return ready && qz.websocket.isActive() && !!getSelectedPrinter();
+}
+
+// Impression d'une image PNG (base64) : rapide, pas de rendu HTML côté QZ
+export async function qzPrintImage(base64Png: string, widthMm: number, heightMm: number): Promise<boolean> {
+  const printer = getSelectedPrinter();
+  if (!printer || !qz.websocket.isActive()) return false;
   const config = qz.configs.create(printer, {
-    units: 'in',
-    size: heightMm ? { width: inch(widthMm), height: inch(heightMm) } : { width: inch(widthMm) },
+    units: 'mm',
+    size: { width: widthMm, height: heightMm },
     margins: 0,
     scaleContent: true,
-    rasterize: true,
     colorType: 'blackwhite',
   });
   try {
-    await qz.print(config, [
-      {
-        type: 'pixel',
-        format: 'html',
-        flavor: 'plain',
-        data: html,
-        options: heightMm ? { pageWidth: inch(widthMm), pageHeight: inch(heightMm) } : { pageWidth: inch(widthMm) },
-      },
-    ]);
+    await qz.print(config, [{ type: 'pixel', format: 'image', flavor: 'base64', data: base64Png }]);
     return true;
   } catch (e) {
     console.error('QZ print error', e);

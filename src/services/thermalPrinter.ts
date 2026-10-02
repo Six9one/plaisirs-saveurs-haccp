@@ -1,4 +1,4 @@
-import { qzPrintHtml } from './qzPrinter';
+import { isQzReady, qzPrintImage, qzWarmUp } from './qzPrinter';
 // Service d'impression directe pour imprimante thermique (58mm / 80mm / étiquettes 2cm)
 
 export interface IngredientPrintData {
@@ -117,14 +117,11 @@ function buildTicketDoc(htmlContent: string, is2cmSticker: boolean, pageHeightMm
   `;
 }
 
-// Impression : mesure la hauteur exacte du ticket, puis
-// 1) QZ Tray vers l'imprimante choisie (silencieux, coupe à la fin)  2) sinon impression Chrome
-export function printTicketHtml(htmlContent: string, _format: ThermalPaperFormat = '80mm', is2cmSticker: boolean = false) {
-  void _format;
-  playPrintBeep();
-  const absolute = htmlContent.replace(/src="\//g, `src="${window.location.origin}/`);
+// Connexion QZ Tray dès le chargement de l'app
+qzWarmUp();
 
-  let iframe = document.getElementById('thermal-print-iframe') as HTMLIFrameElement;
+function getPrintFrame(): HTMLIFrameElement {
+  let iframe = document.getElementById('thermal-print-iframe') as HTMLIFrameElement | null;
   if (!iframe) {
     iframe = document.createElement('iframe');
     iframe.id = 'thermal-print-iframe';
@@ -138,30 +135,87 @@ export function printTicketHtml(htmlContent: string, _format: ThermalPaperFormat
     iframe.style.pointerEvents = 'none';
     document.body.appendChild(iframe);
   }
+  return iframe;
+}
+
+// Dessine le ticket (déjà mis en page dans l'iframe) en image PNG noir & blanc 576 points (72 mm à 203 dpi)
+async function renderTicketPng(doc: Document, wrapper: HTMLElement): Promise<string> {
+  const rect = wrapper.getBoundingClientRect();
+  const css = Array.from(doc.querySelectorAll('style'))
+    .map((st) => st.textContent || '')
+    .join('\n')
+    .replace(/@page\s*\{[^}]*\}/g, '');
+  const xhtml = new XMLSerializer().serializeToString(wrapper);
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${rect.width}" height="${rect.height}">` +
+    `<foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">` +
+    `<style><![CDATA[${css}]]></style>${xhtml}</div></foreignObject></svg>`;
+  const img = new Image();
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  await img.decode();
+  const scale = 576 / rect.width;
+  const canvas = document.createElement('canvas');
+  canvas.width = 576;
+  canvas.height = Math.ceil(rect.height * scale);
+  const ctx = canvas.getContext('2d')!;
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  // Seuil noir/blanc : texte net sur papier thermique
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const px = data.data;
+  for (let i = 0; i < px.length; i += 4) {
+    const v = px[i] * 0.3 + px[i + 1] * 0.59 + px[i + 2] * 0.11 < 170 ? 0 : 255;
+    px[i] = px[i + 1] = px[i + 2] = v;
+    px[i + 3] = 255;
+  }
+  ctx.putImageData(data, 0, 0);
+  return canvas.toDataURL('image/png').split(',')[1];
+}
+
+let printQueue: Promise<void> = Promise.resolve();
+
+// Impression : 1) QZ Tray → image directe vers l'imprimante (instantané, sans fenêtre, coupe à la fin)
+//              2) sinon impression Chrome (fenêtre) avec page à la hauteur exacte du ticket
+export function printTicketHtml(htmlContent: string, _format: ThermalPaperFormat = '80mm', is2cmSticker: boolean = false) {
+  void _format;
+  playPrintBeep();
+  printQueue = printQueue
+    .then(() => doPrint(htmlContent, is2cmSticker))
+    .catch((e) => console.error('Impression', e));
+}
+
+async function doPrint(htmlContent: string, is2cmSticker: boolean): Promise<void> {
+  // Le flocon devient un dessin vectoriel intégré (pas de chargement d'image)
+  const html = htmlContent.replace(/<img[^>]*snowflake[^>]*>/g, SNOWFLAKE_SVG);
+  const iframe = getPrintFrame();
   const doc = iframe.contentWindow?.document;
   if (!doc) return;
   doc.open();
-  doc.write(buildTicketDoc(absolute, is2cmSticker));
+  doc.write(buildTicketDoc(html, is2cmSticker));
   doc.close();
+  const wrapper = doc.querySelector('.ticket-wrapper') as HTMLElement | null;
+  if (!wrapper) return;
+  const heightPx = wrapper.getBoundingClientRect().height;
+  const heightMm = Math.max(is2cmSticker ? 25 : 30, Math.ceil((heightPx * 25.4) / 96) + 3);
 
-  const run = () => {
-    const wrapper = doc.querySelector('.ticket-wrapper') as HTMLElement | null;
-    const px = wrapper ? wrapper.getBoundingClientRect().height : doc.body.scrollHeight;
-    // hauteur exacte + 3 mm de marge → la page s'arrête là et l'imprimante coupe
-    const heightMm = Math.max(is2cmSticker ? 25 : 30, Math.ceil((px * 25.4) / 96) + 3);
-    qzPrintHtml(buildTicketDoc(absolute, is2cmSticker, heightMm), 80, heightMm).then((ok) => {
-      if (ok) return;
-      // Repli : impression Chrome avec la page à la bonne hauteur
-      const style = doc.createElement('style');
-      style.textContent = `@page { size: 80mm ${heightMm}mm; margin: 0; }`;
-      doc.head.appendChild(style);
-      iframe.contentWindow?.focus();
-      iframe.contentWindow?.print();
-    });
-  };
-  const imgs = Array.from(doc.images);
-  Promise.all(imgs.map((im) => (im.complete ? Promise.resolve() : new Promise((r) => { im.onload = im.onerror = () => r(null); }))))
-    .then(() => setTimeout(run, 30));
+  if (isQzReady()) {
+    try {
+      const png = await renderTicketPng(doc, wrapper);
+      if (await qzPrintImage(png, 80, heightMm)) return;
+    } catch (e) {
+      console.error('Rendu ticket', e);
+    }
+  } else {
+    qzWarmUp();
+  }
+
+  // Repli : impression Chrome
+  const style = doc.createElement('style');
+  style.textContent = `@page { size: 80mm ${heightMm}mm; margin: 0; }`;
+  doc.head.appendChild(style);
+  iframe.contentWindow?.focus();
+  iframe.contentWindow?.print();
 }
 
 // 1. Génération du ticket pour Ingrédient / Préparation (DLC Secondaire)
