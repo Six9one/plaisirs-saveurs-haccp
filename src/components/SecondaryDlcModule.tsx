@@ -56,7 +56,6 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
   // Navigation entre Ingrédients et Produits Décongelés (ou vue double)
   const [activeSide, setActiveSide] = useState<'ingredients' | 'frozen' | 'both'>('both');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   // Format d'impression thermique
   const thermalFormat: ThermalPaperFormat =
@@ -316,10 +315,9 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
   const filteredIngredients = useMemo(() => {
     return ingredientSquares.filter((item) => {
       const matchQuery = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchCat = selectedCategory === 'all' || item.category === selectedCategory;
-      return matchQuery && matchCat;
+      return matchQuery;
     });
-  }, [ingredientSquares, searchQuery, selectedCategory]);
+  }, [ingredientSquares, searchQuery]);
 
   // Filtrage des desserts décongelés
   const filteredFrozen = useMemo(() => {
@@ -461,26 +459,8 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
               </button>
             </div>
 
-            {/* Filtres de catégories d'ingrédients */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-              {['all', 'Snacking/Salé', 'Pâtisserie', 'Matière Première Ouverte', 'Boulangerie'].map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-2.5 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer transition-colors ${
-                    selectedCategory === cat
-                      ? 'bg-amber-500 text-slate-950'
-                      : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-                  }`}
-                >
-                  {cat === 'all' ? 'Tous' : cat}
-                </button>
-              ))}
-            </div>
-
             {/* GRILLE DES CARRÉS D'INGRÉDIENTS */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-2.5 sm:gap-3 flex-1 auto-rows-fr">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 auto-rows-[128px] content-start">
               {filteredIngredients.map((item) => {
                 const isJustPrinted = recentlyPrintedId === item.id;
 
@@ -626,7 +606,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
             </div>
 
             {/* GRILLE DES CARRÉS DESSERTS DÉCONGELÉS */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-3 gap-2.5 sm:gap-3 flex-1 auto-rows-fr relative z-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 auto-rows-[128px] content-start relative z-10">
               {filteredFrozen.map((item) => {
                 const isJustPrinted = recentlyPrintedId === item.id;
 
