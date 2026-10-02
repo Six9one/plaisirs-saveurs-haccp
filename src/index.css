@@ -101,3 +101,30 @@ body {
   }
 }
 
+
+/* ===== Mode léger (écran tactile / PC de boutique) =====
+   Supprime les effets coûteux à afficher : flous, grosses ombres, animations d'entrée. */
+@media screen {
+  [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  [class*="blur-2xl"],
+  [class*="blur-3xl"] {
+    display: none !important;
+  }
+  [class*="shadow-lg"],
+  [class*="shadow-xl"],
+  [class*="shadow-2xl"],
+  [class*="shadow-md"] {
+    box-shadow: none !important;
+  }
+  [class*="animate-in"],
+  .animate-pulse,
+  .animate-bounce {
+    animation: none !important;
+  }
+  * {
+    transition-duration: 80ms !important;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import type {
   User,
   TemperatureTarget,
@@ -36,17 +36,6 @@ import { Navigation } from './components/Navigation';
 import type { TabType } from './components/Navigation';
 import { MobileDashboard } from './components/MobileDashboard';
 import { MobileNavBar } from './components/MobileNavBar';
-import { TemperatureModule } from './components/TemperatureModule';
-import { ReceptionModule } from './components/ReceptionModule';
-import { CleaningModule } from './components/CleaningModule';
-import { SecondaryDlcModule } from './components/SecondaryDlcModule';
-import { PestControlModule } from './components/PestControlModule';
-import { WasteModule } from './components/WasteModule';
-import { DdpAuditSimulatorModule } from './components/DdpAuditSimulatorModule';
-import { AuditReportModule } from './components/AuditReportModule';
-import { UserGuideModule } from './components/UserGuideModule';
-import { TravauxModule } from './components/TravauxModule';
-import { ApprovedProductsModule } from './components/ApprovedProductsModule';
 import { SplashScreen } from './components/SplashScreen';
 import { PinModal } from './components/PinModal';
 import { IncidentModal } from './components/IncidentModal';
@@ -68,6 +57,40 @@ import {
   deleteTargetFromSupabase,
   insertRecordToSupabase,
 } from './services/supabase';
+
+// Dernier état connu du cloud (JSON) : n'applique / n'envoie que ce qui a réellement changé
+const syncedJson: Record<string, string> = {};
+function applyIfChanged<T>(key: string, value: T, setter: (v: T) => void) {
+  const json = JSON.stringify(value);
+  if (syncedJson[key] === json) return;
+  syncedJson[key] = json;
+  setter(value);
+}
+function hasLocalChanges(state: Record<string, unknown>): boolean {
+  let changed = false;
+  for (const [k, v] of Object.entries(state)) {
+    const json = JSON.stringify(v);
+    if (syncedJson[k] !== json) {
+      syncedJson[k] = json;
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+// Chargement page par page (démarrage plus rapide)
+const TemperatureModule = lazy(() => import('./components/TemperatureModule').then((mod) => ({ default: mod.TemperatureModule })));
+const ReceptionModule = lazy(() => import('./components/ReceptionModule').then((mod) => ({ default: mod.ReceptionModule })));
+const CleaningModule = lazy(() => import('./components/CleaningModule').then((mod) => ({ default: mod.CleaningModule })));
+const SecondaryDlcModule = lazy(() => import('./components/SecondaryDlcModule').then((mod) => ({ default: mod.SecondaryDlcModule })));
+const PestControlModule = lazy(() => import('./components/PestControlModule').then((mod) => ({ default: mod.PestControlModule })));
+const WasteModule = lazy(() => import('./components/WasteModule').then((mod) => ({ default: mod.WasteModule })));
+const DdpAuditSimulatorModule = lazy(() => import('./components/DdpAuditSimulatorModule').then((mod) => ({ default: mod.DdpAuditSimulatorModule })));
+const AuditReportModule = lazy(() => import('./components/AuditReportModule').then((mod) => ({ default: mod.AuditReportModule })));
+const UserGuideModule = lazy(() => import('./components/UserGuideModule').then((mod) => ({ default: mod.UserGuideModule })));
+const TravauxModule = lazy(() => import('./components/TravauxModule').then((mod) => ({ default: mod.TravauxModule })));
+const ApprovedProductsModule = lazy(() => import('./components/ApprovedProductsModule').then((mod) => ({ default: mod.ApprovedProductsModule })));
+
 
 export const App: React.FC = () => {
   // Intro Splash & Auto-Update status on launch
@@ -190,21 +213,29 @@ export const App: React.FC = () => {
   const [lastSyncedTime, setLastSyncedTime] = useState<string>('');
 
   // 1. Continuous Multi-Device Real-time & Background Synchronization
+  // Connexion à l'imprimante (QZ Tray) dès l'ouverture, sans ralentir le démarrage
+  useEffect(() => {
+    const t = setTimeout(() => {
+      import('./services/qzPrinter').then((m) => m.qzWarmUp());
+    }, 1500);
+    return () => clearTimeout(t);
+  }, []);
+
   useEffect(() => {
     const syncFromRemote = () => {
       if (isSupabaseConfigured()) {
         fetchAllFromSupabase().then((data) => {
           if (data) {
-            if (data.targets && data.targets.length > 0) setTargets(data.targets);
+            if (data.targets && data.targets.length > 0) applyIfChanged('targets', data.targets, setTargets);
             if (data.records) {
               const cleanOnly = data.records.filter((r) => r.userId !== 'anonymous_iot' && !r.userName?.includes('IoT'));
-              setRecords(cleanOnly);
+              applyIfChanged('records', cleanOnly, setRecords);
             }
-            if (data.receipts && data.receipts.length > 0) setReceipts(data.receipts);
-            if (data.secondaryDlc && data.secondaryDlc.length > 0) setSecondaryDlc(data.secondaryDlc);
+            if (data.receipts && data.receipts.length > 0) applyIfChanged('receipts', data.receipts, setReceipts);
+            if (data.secondaryDlc && data.secondaryDlc.length > 0) applyIfChanged('secondaryDlc', data.secondaryDlc, setSecondaryDlc);
             if (data.cleaningTasks) {
               const filtered = data.cleaningTasks.filter((t) => t.id && t.id.startsWith('cl_machine_'));
-              setCleaningTasks(filtered);
+              applyIfChanged('cleaningTasks', filtered, setCleaningTasks);
             }
             setLastSyncedTime(new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
           }
@@ -213,19 +244,19 @@ export const App: React.FC = () => {
         const storeId = getActiveStoreId();
         fetchStateFromCloud(storeId).then((remoteState) => {
           if (remoteState) {
-            if (remoteState.targets && remoteState.targets.length > 0) setTargets(remoteState.targets);
+            if (remoteState.targets && remoteState.targets.length > 0) applyIfChanged('targets', remoteState.targets, setTargets);
             if (remoteState.records) {
               const cleanOnly = remoteState.records.filter((r) => r.userId !== 'anonymous_iot' && !r.userName?.includes('IoT'));
-              setRecords(cleanOnly);
+              applyIfChanged('records', cleanOnly, setRecords);
             }
-            if (remoteState.receipts && remoteState.receipts.length > 0) setReceipts(remoteState.receipts);
-            if (remoteState.secondaryDlc && remoteState.secondaryDlc.length > 0) setSecondaryDlc(remoteState.secondaryDlc);
+            if (remoteState.receipts && remoteState.receipts.length > 0) applyIfChanged('receipts', remoteState.receipts, setReceipts);
+            if (remoteState.secondaryDlc && remoteState.secondaryDlc.length > 0) applyIfChanged('secondaryDlc', remoteState.secondaryDlc, setSecondaryDlc);
             if (remoteState.cleaningTasks) {
               const filtered = remoteState.cleaningTasks.filter((t) => t.id && t.id.startsWith('cl_machine_'));
-              setCleaningTasks(filtered);
+              applyIfChanged('cleaningTasks', filtered, setCleaningTasks);
             }
-            if (remoteState.pestStations) setPestStations(remoteState.pestStations);
-            if (remoteState.wasteLogs) setWasteLogs(remoteState.wasteLogs);
+            if (remoteState.pestStations) applyIfChanged('pestStations', remoteState.pestStations, setPestStations);
+            if (remoteState.wasteLogs) applyIfChanged('wasteLogs', remoteState.wasteLogs, setWasteLogs);
             setLastSyncedTime(new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
           }
         });
@@ -251,8 +282,8 @@ export const App: React.FC = () => {
     window.addEventListener('focus', syncFromRemote);
     window.addEventListener('online', syncFromRemote);
 
-    // 8-second background polling for seamless multi-device updates without restarting
-    const interval = setInterval(syncFromRemote, 8000);
+    // 30-second background polling for seamless multi-device updates without restarting
+    const interval = setInterval(syncFromRemote, 30000);
 
     return () => {
       unsubscribeSupabase();
@@ -266,6 +297,8 @@ export const App: React.FC = () => {
   // 2. Debounced Auto-Push to Supabase & Cloud on local state changes
   useEffect(() => {
     const timer = setTimeout(async () => {
+      // Rien de nouveau par rapport au cloud → pas d'envoi (évite la boucle télécharger/renvoyer)
+      if (!hasLocalChanges({ targets, records, receipts, secondaryDlc, cleaningTasks, pestStations, wasteLogs })) return;
       if (isSupabaseConfigured()) {
         const success = await pushAllToSupabase({
           targets,
@@ -1123,6 +1156,7 @@ export const App: React.FC = () => {
 
       {/* 3. Main Content Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <Suspense fallback={<div className="py-20 text-center text-slate-500 text-sm">Chargement…</div>}>
         
         {/* Back Button when inside a sub-module */}
         {/* Dashboard Grid (Shown when activeTab === 'home') */}
@@ -1242,6 +1276,7 @@ export const App: React.FC = () => {
         {activeTab === 'user_guide' && (
           <UserGuideModule onClose={() => setActiveTab('home')} />
         )}
+        </Suspense>
       </main>
 
       {/* Mobile Bottom Bar */}

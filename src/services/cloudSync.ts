@@ -168,7 +168,7 @@ export const subscribeToCloudSync = (
   pollCloud();
 
   // Periodic interval
-  const timer = setInterval(pollCloud, 5000);
+  const timer = setInterval(pollCloud, 30000);
 
   // When device comes back online, immediately poll
   const handleOnline = () => {
