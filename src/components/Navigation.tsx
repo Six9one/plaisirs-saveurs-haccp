@@ -7,7 +7,6 @@ import {
   Bug,
   FileSpreadsheet,
   HelpCircle,
-  FlaskConical,
 } from 'lucide-react';
 
 export type TabType =
@@ -64,12 +63,6 @@ export const Navigation: React.FC<NavigationProps> = ({
       icon: Sparkles,
       badge: pendingCleaningCount > 0 ? `${pendingCleaningCount}` : null,
       badgeColor: 'bg-indigo-500',
-    },
-    {
-      id: 'approved_products' as TabType,
-      label: 'Produits',
-      sublabel: 'Agréés EN 1276',
-      icon: FlaskConical,
     },
     {
       id: 'pest_control' as TabType,

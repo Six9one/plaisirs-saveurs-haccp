@@ -64,16 +64,6 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
       badgeBg: pendingCleaningCount > 0 ? 'bg-rose-500 text-white' : 'bg-emerald-950 text-emerald-200',
     },
     {
-      id: 'approved_products' as TabType,
-      title: 'Produits Agréés',
-      subtitle: 'Fiches EN 1276 / 13697',
-      icon: Sparkles,
-      cardBg: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-900/30 font-bold',
-      iconBg: 'bg-indigo-800 text-white',
-      badge: 'Normes CE',
-      badgeBg: 'bg-indigo-950 text-indigo-200',
-    },
-    {
       id: 'pest_control' as TabType,
       title: 'Nuisibles',
       subtitle: 'Pièges & EDEN VERT',
