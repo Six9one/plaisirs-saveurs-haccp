@@ -1,3 +1,4 @@
+import { qzPrintHtml } from './qzPrinter';
 // Service d'impression directe pour imprimante thermique (58mm / 80mm / étiquettes 2cm)
 
 export interface IngredientPrintData {
@@ -51,33 +52,22 @@ export const SNOWFLAKE_SVG = `
 </svg>
 `;
 
-// Impression directe via iframe invisible (spéciale imprimante thermique)
-export function printTicketHtml(htmlContent: string, format: ThermalPaperFormat = '58mm', is2cmSticker: boolean = false) {
-  playPrintBeep();
+const PRINT_SCRIPT = `
+        <script>
+          window.onload = function() {
+            setTimeout(function() {
+              window.focus();
+              window.print();
+            }, 50);
+          };
+        </script>
+`;
 
-  let iframe = document.getElementById('thermal-print-iframe') as HTMLIFrameElement;
-  if (!iframe) {
-    iframe = document.createElement('iframe');
-    iframe.id = 'thermal-print-iframe';
-    iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = '0';
-    iframe.style.opacity = '0';
-    iframe.style.pointerEvents = 'none';
-    document.body.appendChild(iframe);
-  }
-
-  const iframeDoc = iframe.contentWindow?.document;
-  if (!iframeDoc) return;
-
+// Construit le document HTML complet du ticket
+function buildTicketDoc(htmlContent: string, format: ThermalPaperFormat, is2cmSticker: boolean, withScript: boolean): string {
   const widthMm = format === '80mm' ? '76mm' : '52mm';
   const pageHeight = is2cmSticker ? '25mm' : 'auto';
-
-  iframeDoc.open();
-  iframeDoc.write(`
+  return `
     <!DOCTYPE html>
     <html lang="fr">
       <head>
@@ -133,17 +123,44 @@ export function printTicketHtml(htmlContent: string, format: ThermalPaperFormat 
         <div class="ticket-wrapper">
           ${htmlContent}
         </div>
-        <script>
-          window.onload = function() {
-            setTimeout(function() {
-              window.focus();
-              window.print();
-            }, 50);
-          };
-        </script>
+        ${withScript ? PRINT_SCRIPT : ''}
       </body>
     </html>
-  `);
+  `;
+}
+
+// Impression : 1) QZ Tray vers l'imprimante choisie (silencieux)  2) sinon impression Chrome (iframe invisible)
+export function printTicketHtml(htmlContent: string, format: ThermalPaperFormat = '58mm', is2cmSticker: boolean = false) {
+  playPrintBeep();
+  const absolute = htmlContent.replace(/src="\//g, `src="${window.location.origin}/`);
+  qzPrintHtml(
+    buildTicketDoc(absolute, format, is2cmSticker, false),
+    format === '80mm' ? 80 : 58,
+    is2cmSticker ? 25 : undefined
+  ).then((ok) => {
+    if (!ok) printViaIframe(htmlContent, format, is2cmSticker);
+  });
+}
+
+function printViaIframe(htmlContent: string, format: ThermalPaperFormat, is2cmSticker: boolean) {
+  let iframe = document.getElementById('thermal-print-iframe') as HTMLIFrameElement;
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = 'thermal-print-iframe';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.style.opacity = '0';
+    iframe.style.pointerEvents = 'none';
+    document.body.appendChild(iframe);
+  }
+  const iframeDoc = iframe.contentWindow?.document;
+  if (!iframeDoc) return;
+  iframeDoc.open();
+  iframeDoc.write(buildTicketDoc(htmlContent, format, is2cmSticker, true));
   iframeDoc.close();
 }
 

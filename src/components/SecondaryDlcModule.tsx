@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { PrinterPicker } from './PrinterPicker';
 import type { SecondaryDlcItem, User, IngredientSquare, FrozenDessertSquare } from '../types';
 import {
   DEFAULT_INGREDIENT_SQUARES,
@@ -395,6 +396,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
               </button>
             )}
           </div>
+            <PrinterPicker />
             <button
               type="button"
               onClick={() => {
@@ -411,7 +413,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
               title="Lancer un ticket de test sur votre imprimante"
             >
               <Printer className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Test Impression</span>
+              <span>Test</span>
             </button>
       </div>
 
