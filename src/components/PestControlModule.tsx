@@ -177,7 +177,14 @@ export const PestControlModule: React.FC<PestControlModuleProps> = ({
     { id: 'contract' as const, label: 'Contrat', icon: FileText, count: null },
     { id: 'stations' as const, label: 'Pièges', icon: Bug, count: stations.length },
   ];
-  const nextPassage = interventions.find((i) => i.status === 'Planifié');
+  // Un passage « Planifié » dont la date est passée compte comme fait
+  const isPast = (d: string) => {
+    const [dd, mm, yyyy] = d.split('/').map(Number);
+    if (!dd || !mm || !yyyy) return false;
+    return new Date(yyyy, mm - 1, dd, 23, 59) < new Date();
+  };
+  const isPlanned = (i: PestIntervention) => i.status === 'Planifié' && !isPast(i.date);
+  const nextPassage = interventions.find(isPlanned);
 
   return (
     <div className="space-y-3 max-w-4xl mx-auto pb-24 px-2 sm:px-0 animate-in fade-in duration-200">
@@ -264,7 +271,7 @@ export const PestControlModule: React.FC<PestControlModuleProps> = ({
       {activeTab === 'passages' && (
         <div className="space-y-2 animate-in fade-in">
           {interventions.map((int) => {
-            const isFuture = int.status === 'Planifié';
+            const isFuture = isPlanned(int);
             const open = openPassageId === int.id;
             return (
               <div key={int.id} className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">

@@ -24,7 +24,6 @@ import {
   RotateCcw,
   Snowflake,
   SlidersHorizontal,
-  AlertTriangle,
 } from 'lucide-react';
 
 interface SecondaryDlcModuleProps {
@@ -33,6 +32,20 @@ interface SecondaryDlcModuleProps {
   onAddItem: (item: Omit<SecondaryDlcItem, 'id'>) => void;
   onDeleteItem: (id: string) => void;
 }
+
+const WARM_COLORS = [
+  'bg-rose-600', 'bg-orange-500', 'bg-amber-600', 'bg-lime-600', 'bg-emerald-600',
+  'bg-red-600', 'bg-pink-600', 'bg-fuchsia-600', 'bg-yellow-600', 'bg-green-600',
+];
+const COOL_COLORS = [
+  'bg-sky-600', 'bg-cyan-600', 'bg-blue-600', 'bg-indigo-600', 'bg-violet-600',
+  'bg-teal-600', 'bg-purple-600', 'bg-blue-700',
+];
+const colorFor = (id: string, palette: string[]) => {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return palette[h % palette.length];
+};
 
 export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
   items,
@@ -46,9 +59,11 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   // Format d'impression thermique
-  const [thermalFormat, setThermalFormat] = useState<ThermalPaperFormat>(() => {
-    return (localStorage.getItem(STORAGE_KEYS.THERMAL_FORMAT) as ThermalPaperFormat) || '58mm';
-  });
+  const thermalFormat: ThermalPaperFormat =
+    (localStorage.getItem(STORAGE_KEYS.THERMAL_FORMAT) as ThermalPaperFormat) || '58mm';
+
+  // Suppression en 2 touches (pas de fenêtre popup)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   // Liste des carrés d'ingrédients (persistance localStorage)
   const [ingredientSquares, setIngredientSquares] = useState<IngredientSquare[]>(() => {
@@ -101,13 +116,6 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
     setStoredData(STORAGE_KEYS.FROZEN_DESSERT_SQUARES, updated);
   };
 
-  // Changement format imprimante
-  const handleFormatChange = (fmt: ThermalPaperFormat) => {
-    setThermalFormat(fmt);
-    localStorage.setItem(STORAGE_KEYS.THERMAL_FORMAT, fmt);
-    showToast(`Format d'impression réglé sur : ${fmt === '58mm' ? '58 mm' : fmt === '80mm' ? '80 mm' : 'Sticker 2 cm'}`);
-  };
-
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
@@ -151,7 +159,6 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
 
     // 3. Feedback visuel
     setRecentlyPrintedId(square.id);
-    showToast(`🖨️ Ticket imprimé : ${square.name} (DLC +${square.durationHours}h)`);
     setTimeout(() => {
       setRecentlyPrintedId((prev) => (prev === square.id ? null : prev));
     }, 1800);
@@ -191,7 +198,6 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
 
     // 3. Feedback visuel
     setRecentlyPrintedId(square.id);
-    showToast(`❄️ Ticket 2 cm imprimé : ${square.name} • Ne pas recongeler`);
     setTimeout(() => {
       setRecentlyPrintedId((prev) => (prev === square.id ? null : prev));
     }, 1800);
@@ -274,19 +280,27 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
   // Suppression d'un carré ingrédient
   const handleDeleteIngredientSquare = (id: string, name: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm(`Supprimer le carré ingrédient "${name}" ?`)) {
-      saveIngredientSquares(ingredientSquares.filter((sq) => sq.id !== id));
-      showToast(`Carré "${name}" supprimé`);
+    if (pendingDeleteId !== id) {
+      setPendingDeleteId(id);
+      setTimeout(() => setPendingDeleteId((cur) => (cur === id ? null : cur)), 3000);
+      return;
     }
+    setPendingDeleteId(null);
+    saveIngredientSquares(ingredientSquares.filter((sq) => sq.id !== id));
+    void name;
   };
 
   // Suppression d'un carré dessert décongelé
   const handleDeleteFrozenSquare = (id: string, name: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm(`Supprimer le carré dessert "${name}" ?`)) {
-      saveFrozenSquares(frozenSquares.filter((sq) => sq.id !== id));
-      showToast(`Carré "${name}" supprimé`);
+    if (pendingDeleteId !== id) {
+      setPendingDeleteId(id);
+      setTimeout(() => setPendingDeleteId((cur) => (cur === id ? null : cur)), 3000);
+      return;
     }
+    setPendingDeleteId(null);
+    saveFrozenSquares(frozenSquares.filter((sq) => sq.id !== id));
+    void name;
   };
 
   // Réinitialisation des carrés par défaut
@@ -315,94 +329,10 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
   }, [frozenSquares, searchQuery]);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-28 px-2 sm:px-4 animate-in fade-in duration-200">
+    <div className="space-y-3 max-w-7xl mx-auto pb-28 px-2 sm:px-3 animate-in fade-in duration-200">
       
-      {/* ================= 1. HEADER & BARRE D'ÉTAT IMPRIMANTE THERMIQUE ================= */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl text-white">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          
-          {/* Titre et statut */}
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-inner">
-              <Printer className="w-6 h-6 text-amber-400" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-lg sm:text-xl font-black text-white tracking-tight">
-                  Étiquettes &amp; DLC Secondaires
-                </h1>
-              </div>
-            </div>
-          </div>
-
-          {/* Contrôles et format imprimante */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            
-            {/* Sélecteur de format papier */}
-            <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-2xl p-1 text-xs">
-              <span className="text-[10px] text-slate-400 font-bold px-2 uppercase tracking-wider">Format :</span>
-              <button
-                type="button"
-                onClick={() => handleFormatChange('58mm')}
-                className={`px-2.5 py-1 rounded-xl font-bold transition-all cursor-pointer ${
-                  thermalFormat === '58mm'
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                58 mm
-              </button>
-              <button
-                type="button"
-                onClick={() => handleFormatChange('80mm')}
-                className={`px-2.5 py-1 rounded-xl font-bold transition-all cursor-pointer ${
-                  thermalFormat === '80mm'
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                80 mm
-              </button>
-              <button
-                type="button"
-                onClick={() => handleFormatChange('sticker_2cm')}
-                className={`px-2.5 py-1 rounded-xl font-bold transition-all cursor-pointer ${
-                  thermalFormat === 'sticker_2cm'
-                    ? 'bg-cyan-500 text-slate-950 shadow-xs'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                2 cm mini
-              </button>
-            </div>
-
-            {/* Test rapide imprimante */}
-            <button
-              type="button"
-              onClick={() => {
-                handlePrintIngredient({
-                  id: 'test',
-                  name: 'TEST IMPRIMANTE HACCP',
-                  category: 'Snacking/Salé',
-                  durationHours: 24,
-                  emoji: '🖨️',
-                  storageTemp: '+2°C à +4°C',
-                });
-              }}
-              className="h-10 px-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 text-xs font-bold border border-slate-700 flex items-center gap-2 transition-all cursor-pointer"
-              title="Lancer un ticket de test sur votre imprimante"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Test Impression</span>
-            </button>
-
-          </div>
-
-        </div>
-
-        {/* ================= BARRE D'ONGLETS / VUE CÔTÉ À CÔTÉ ================= */}
-        <div className="mt-4 pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          
+      {/* Barre compacte : vues • recherche • test */}
+      <div className="flex items-center gap-2 flex-wrap text-white">
           <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-2xl border border-slate-800 self-start">
             <button
               type="button"
@@ -414,7 +344,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
               }`}
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>Tout Afficher (Côte à côte)</span>
+              <span>Tout</span>
             </button>
 
             <button
@@ -426,7 +356,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <span>🥗 Ingrédients / DLC</span>
+              <span>Ingrédients</span>
               <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-900 text-amber-300 font-mono">
                 {ingredientSquares.length}
               </span>
@@ -442,15 +372,13 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
               }`}
             >
               <Snowflake className="w-3.5 h-3.5 text-cyan-400" />
-              <span>❄️ Produits Décongelés (2 cm)</span>
+              <span>Décongelés</span>
               <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-900 text-cyan-300 font-mono">
                 {frozenSquares.length}
               </span>
             </button>
           </div>
-
-          {/* Recherche rapide */}
-          <div className="relative w-full sm:w-64">
+          <div className="relative flex-1 min-w-[160px]">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -469,9 +397,24 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
               </button>
             )}
           </div>
-
-        </div>
-
+            <button
+              type="button"
+              onClick={() => {
+                handlePrintIngredient({
+                  id: 'test',
+                  name: 'TEST IMPRIMANTE HACCP',
+                  category: 'Snacking/Salé',
+                  durationHours: 24,
+                  emoji: '🖨️',
+                  storageTemp: '+2°C à +4°C',
+                });
+              }}
+              className="h-10 px-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 text-xs font-bold border border-slate-700 flex items-center gap-2 transition-all cursor-pointer"
+              title="Lancer un ticket de test sur votre imprimante"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Test Impression</span>
+            </button>
       </div>
 
       {/* ================= TOAST DE CONFIRMATION D'IMPRESSION ================= */}
@@ -483,7 +426,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
       )}
 
       {/* ================= CONTENU PRINCIPAL : LES DEUX SECTIONS ================= */}
-      <div className={`grid gap-6 ${activeSide === 'both' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
+      <div className={`grid gap-3 ${activeSide === 'both' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
 
         {/* ---------------- SECTION GAUCHE / 1 : LES INGRÉDIENTS & DLC SECONDAIRES ---------------- */}
         {(activeSide === 'both' || activeSide === 'ingredients') && (
@@ -497,9 +440,6 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                   <h2 className="text-base font-black text-white tracking-tight">
                     Ingrédients &amp; Préparations (DLC)
                   </h2>
-                  <p className="text-[11px] text-slate-400">
-                    1 carré = 1 clic = impression sticker immédiate
-                  </p>
                 </div>
               </div>
 
@@ -517,7 +457,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                 className="h-9 px-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 active:scale-95 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md shadow-amber-500/20 cursor-pointer transition-all"
               >
                 <Plus className="w-4 h-4 stroke-[3]" />
-                <span>+ Ajouter Ingrédient</span>
+                <span>Ajouter</span>
               </button>
             </div>
 
@@ -556,7 +496,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                     className={`group relative rounded-2xl p-3 sm:p-3.5 flex flex-col justify-between text-left transition-all cursor-pointer border select-none ${
                       isJustPrinted
                         ? 'bg-emerald-500 text-slate-950 border-emerald-300 scale-95 shadow-xl shadow-emerald-500/30'
-                        : 'bg-slate-950 hover:bg-slate-800/90 text-white border-slate-800 hover:border-amber-500/60 hover:shadow-lg hover:shadow-amber-500/10 active:scale-95'
+                        : `${colorFor(item.id, WARM_COLORS)} text-white border-white/10 hover:brightness-110 shadow-md active:scale-95`
                     }`}
                   >
                     
@@ -577,7 +517,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                             setNewIngTemp(item.storageTemp || '+2°C à +4°C');
                             setShowAddIngredientModal(true);
                           }}
-                          className="w-6 h-6 rounded-lg bg-slate-900/90 hover:bg-amber-500 hover:text-slate-950 text-slate-400 flex items-center justify-center transition-colors"
+                          className="w-6 h-6 rounded-lg bg-black/25 hover:bg-white hover:text-slate-950 text-white/80 flex items-center justify-center transition-colors"
                           title="Modifier cet ingrédient"
                         >
                           <Edit2 className="w-3 h-3" />
@@ -585,10 +525,14 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                         <button
                           type="button"
                           onClick={(e) => handleDeleteIngredientSquare(item.id, item.name, e)}
-                          className="w-6 h-6 rounded-lg bg-slate-900/90 hover:bg-rose-500 hover:text-white text-slate-400 flex items-center justify-center transition-colors"
+                          className={`h-6 rounded-lg flex items-center justify-center gap-1 transition-colors ${
+                            pendingDeleteId === item.id ? 'px-2 bg-rose-600 text-white text-[10px] font-black' : 'w-6 bg-black/25 hover:bg-rose-500 text-white/80'
+                          }`}
                           title="Supprimer ce carré"
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className={`h-6 rounded-lg flex items-center justify-center gap-1 transition-colors ${
+                            pendingDeleteId === item.id ? 'px-2 bg-rose-600 text-white text-[10px] font-black' : 'w-6 bg-black/25 hover:bg-rose-500 text-white/80'
+                          }`} />
                         </button>
                       </div>
                     </div>
@@ -597,7 +541,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                     <div className="my-2">
                       <h3
                         className={`text-xs sm:text-sm font-black leading-snug line-clamp-2 ${
-                          isJustPrinted ? 'text-slate-950' : 'text-white group-hover:text-amber-300'
+                          isJustPrinted ? 'text-slate-950' : 'text-white'
                         }`}
                       >
                         {item.name}
@@ -605,11 +549,11 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                     </div>
 
                     {/* Pied du carré : Durée DLC + Icône Imprimante */}
-                    <div className="pt-2 border-t border-slate-800/80 flex items-center justify-end text-[11px] font-black">
+                    <div className="pt-2 border-t border-white/20 flex items-center justify-end text-[11px] font-black">
 
                       <div
                         className={`flex items-center gap-1 ${
-                          isJustPrinted ? 'text-slate-950 font-black' : 'text-amber-400 group-hover:scale-110 transition-transform'
+                          isJustPrinted ? 'text-slate-950 font-black' : 'text-white'
                         }`}
                       >
                         <Printer className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -677,16 +621,8 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                 className="h-9 px-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 active:scale-95 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md shadow-cyan-500/20 cursor-pointer transition-all"
               >
                 <Plus className="w-4 h-4 stroke-[3]" />
-                <span>+ Ajouter Dessert</span>
+                <span>Ajouter</span>
               </button>
-            </div>
-
-            {/* Bandeau d'information légale HACCP */}
-            <div className="p-2.5 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 flex items-center gap-2.5 text-xs text-cyan-100">
-              <AlertTriangle className="w-4 h-4 text-cyan-400 shrink-0" />
-              <p className="text-[11px] leading-tight">
-                <strong>Norme DDPP :</strong> Tout dessert décongelé remis en vente doit afficher sa date de décongélation et la mention formelle <em>« Produit décongelé • Ne pas recongeler »</em>.
-              </p>
             </div>
 
             {/* GRILLE DES CARRÉS DESSERTS DÉCONGELÉS */}
@@ -706,7 +642,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                     className={`group relative rounded-2xl p-3 sm:p-3.5 flex flex-col justify-between text-left transition-all cursor-pointer border select-none ${
                       isJustPrinted
                         ? 'bg-cyan-400 text-slate-950 border-cyan-200 scale-95 shadow-xl shadow-cyan-400/30'
-                        : 'bg-slate-950 hover:bg-slate-900/90 text-white border-cyan-500/30 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/20 active:scale-95'
+                        : `${colorFor(item.id, COOL_COLORS)} text-white border-white/10 hover:brightness-110 shadow-md active:scale-95`
                     }`}
                   >
                     
@@ -735,7 +671,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                             setNewFrzEmoji(item.emoji || '🍰');
                             setShowAddFrozenModal(true);
                           }}
-                          className="w-6 h-6 rounded-lg bg-slate-900/90 hover:bg-cyan-500 hover:text-slate-950 text-slate-400 flex items-center justify-center transition-colors"
+                          className="w-6 h-6 rounded-lg bg-black/25 hover:bg-white hover:text-slate-950 text-white/80 flex items-center justify-center transition-colors"
                           title="Modifier ce dessert"
                         >
                           <Edit2 className="w-3 h-3" />
@@ -743,10 +679,14 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                         <button
                           type="button"
                           onClick={(e) => handleDeleteFrozenSquare(item.id, item.name, e)}
-                          className="w-6 h-6 rounded-lg bg-slate-900/90 hover:bg-rose-500 hover:text-white text-slate-400 flex items-center justify-center transition-colors"
+                          className={`h-6 rounded-lg flex items-center justify-center gap-1 transition-colors ${
+                            pendingDeleteId === item.id ? 'px-2 bg-rose-600 text-white text-[10px] font-black' : 'w-6 bg-black/25 hover:bg-rose-500 text-white/80'
+                          }`}
                           title="Supprimer ce carré"
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className={`h-6 rounded-lg flex items-center justify-center gap-1 transition-colors ${
+                            pendingDeleteId === item.id ? 'px-2 bg-rose-600 text-white text-[10px] font-black' : 'w-6 bg-black/25 hover:bg-rose-500 text-white/80'
+                          }`} />
                         </button>
                       </div>
                     </div>
@@ -755,7 +695,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                     <div className="my-2">
                       <h3
                         className={`text-xs sm:text-sm font-black leading-snug line-clamp-2 ${
-                          isJustPrinted ? 'text-slate-950' : 'text-white group-hover:text-cyan-300'
+                          isJustPrinted ? 'text-slate-950' : 'text-white'
                         }`}
                       >
                         {item.name}
@@ -763,11 +703,11 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                     </div>
 
                     {/* Pied du carré : Sticker 2cm badge + Impression directe */}
-                    <div className="pt-2 border-t border-slate-800/80 flex items-center justify-end text-[11px] font-black">
+                    <div className="pt-2 border-t border-white/20 flex items-center justify-end text-[11px] font-black">
 
                       <div
                         className={`flex items-center gap-1 ${
-                          isJustPrinted ? 'text-slate-950 font-black' : 'text-cyan-400 group-hover:scale-110 transition-transform'
+                          isJustPrinted ? 'text-slate-950 font-black' : 'text-white'
                         }`}
                       >
                         <Printer className="w-3.5 h-3.5 stroke-[2.5]" />

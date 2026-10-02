@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { compressImage } from '../services/imageStorage';
 import { HistoricalInvoiceModal } from './HistoricalInvoiceModal';
+import { SupplierInvoices } from './SupplierInvoices';
 
 interface ReceptionModuleProps {
   receipts: GoodsReceipt[];
@@ -532,6 +533,12 @@ export const ReceptionModule: React.FC<ReceptionModuleProps> = ({
         />
       )}
 
+
+      {/* Factures de réception marchandises (PDF) */}
+      <div className="pt-2">
+        <h2 className="text-sm font-black text-white px-1 mb-2">Factures</h2>
+        <SupplierInvoices />
+      </div>
     </div>
   );
 };

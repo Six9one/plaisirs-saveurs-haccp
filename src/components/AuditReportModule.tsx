@@ -24,16 +24,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { safeFormatTime } from '../utils/formatters';
-import supplierInvoicesData from '../data/supplierInvoices.json';
-
-interface SupplierInvoice {
-  date: string;
-  supplier: string;
-  number: string;
-  avoir: boolean;
-  file: string;
-}
-const SUPPLIER_INVOICES = supplierInvoicesData as SupplierInvoice[];
+import { SupplierInvoices } from './SupplierInvoices';
 
 interface AuditReportModuleProps {
   targets: TemperatureTarget[];
@@ -65,21 +56,6 @@ export const AuditReportModule: React.FC<AuditReportModuleProps> = ({
     'factures' | 'receipts' | 'cleanings' | 'temperatures' | 'dlc' | 'full_dossier'
   >('factures');
 
-  // Factures fournisseurs (PDF dans /public/factures)
-  const invoiceYears = Array.from(new Set(SUPPLIER_INVOICES.map((i) => i.date.slice(0, 4)))).sort().reverse();
-  const invoiceSuppliers = Array.from(new Set(SUPPLIER_INVOICES.map((i) => i.supplier)));
-  const [invoiceYear, setInvoiceYear] = useState<string>(invoiceYears[0] ?? '');
-  const [invoiceSupplier, setInvoiceSupplier] = useState<string>('Tous');
-  const [openInvoice, setOpenInvoice] = useState<SupplierInvoice | null>(null);
-  const invoiceMonths = Object.entries(
-    SUPPLIER_INVOICES.filter(
-      (i) => i.date.startsWith(invoiceYear) && (invoiceSupplier === 'Tous' || i.supplier === invoiceSupplier)
-    ).reduce<Record<string, SupplierInvoice[]>>((acc, inv) => {
-      const label = new Date(inv.date + 'T12:00:00').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-      (acc[label] ||= []).push(inv);
-      return acc;
-    }, {})
-  );
 
   const [dateFilter, setDateFilter] = useState<'today' | '7days' | '30days' | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -237,93 +213,8 @@ export const AuditReportModule: React.FC<AuditReportModuleProps> = ({
 
       {/* FACTURES FOURNISSEURS (PDF) */}
       {activeTab === 'factures' && (
-        <div className="no-print space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            {invoiceYears.map((y) => (
-              <button
-                key={y}
-                type="button"
-                onClick={() => setInvoiceYear(y)}
-                className={`px-5 py-2 rounded-2xl text-sm font-black cursor-pointer ${
-                  invoiceYear === y ? 'bg-white text-slate-950' : 'bg-slate-900 border border-slate-800 text-slate-300'
-                }`}
-              >
-                {y}
-              </button>
-            ))}
-            <span className="w-px h-6 bg-slate-800 mx-1" />
-            {['Tous', ...invoiceSuppliers].map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setInvoiceSupplier(s)}
-                className={`px-3 py-2 rounded-2xl text-xs font-bold cursor-pointer ${
-                  invoiceSupplier === s ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 border border-slate-800 text-slate-300'
-                }`}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-
-          {invoiceMonths.map(([month, list]) => (
-            <div key={month} className="space-y-1.5">
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 px-1 pt-1">{month}</h3>
-              {list.map((inv) => (
-                <button
-                  key={inv.file}
-                  type="button"
-                  onClick={() => setOpenInvoice(inv)}
-                  className="w-full bg-slate-900 border border-slate-800 hover:border-amber-500/50 active:scale-[0.99] px-4 py-3 rounded-2xl flex items-center justify-between gap-3 text-left transition-all cursor-pointer"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <FileText className="w-5 h-5 text-amber-400 shrink-0" />
-                    <span className="text-sm font-black text-white truncate">{inv.supplier}</span>
-                    {inv.avoir && (
-                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300">Avoir</span>
-                    )}
-                  </div>
-                  <span className="text-sm font-bold text-slate-300 shrink-0">
-                    {new Date(inv.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-                  </span>
-                </button>
-              ))}
-            </div>
-          ))}
-
-          {invoiceMonths.length === 0 && (
-            <div className="py-10 text-center text-slate-500 text-sm">Aucune facture</div>
-          )}
-        </div>
-      )}
-
-      {/* Visionneuse PDF */}
-      {openInvoice && (
-        <div className="no-print fixed inset-0 z-50 bg-slate-950/95 flex flex-col p-3 gap-2">
-          <div className="flex items-center justify-between gap-2">
-            <div className="text-white font-black text-sm truncate">
-              {openInvoice.supplier} • {new Date(openInvoice.date + 'T12:00:00').toLocaleDateString('fr-FR')}
-            </div>
-            <div className="flex items-center gap-2">
-              <a
-                href={openInvoice.file}
-                target="_blank"
-                rel="noreferrer"
-                className="h-10 px-4 rounded-2xl bg-slate-800 text-white font-bold text-xs flex items-center"
-              >
-                Ouvrir
-              </a>
-              <button
-                type="button"
-                onClick={() => setOpenInvoice(null)}
-                className="h-10 w-10 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center cursor-pointer"
-                aria-label="Fermer"
-              >
-                <X className="w-5 h-5 stroke-[3]" />
-              </button>
-            </div>
-          </div>
-          <iframe src={openInvoice.file} title="Facture" className="flex-1 w-full rounded-2xl bg-white" />
+        <div className="no-print">
+          <SupplierInvoices />
         </div>
       )}
 
