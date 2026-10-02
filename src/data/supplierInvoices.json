@@ -1,0 +1,1248 @@
+[
+ {
+  "date": "2026-08-19",
+  "supplier": "MAG DIS",
+  "number": "27004749",
+  "avoir": false,
+  "file": "/factures/2026/2026-08-19_magdis_27004749.pdf"
+ },
+ {
+  "date": "2026-08-19",
+  "supplier": "Moulins Bourgeois",
+  "number": "260803834",
+  "avoir": false,
+  "file": "/factures/2026/2026-08-19_moulins-bourgeois_260803834.pdf"
+ },
+ {
+  "date": "2026-08-12",
+  "supplier": "Moulins Bourgeois",
+  "number": "260802263",
+  "avoir": false,
+  "file": "/factures/2026/2026-08-12_moulins-bourgeois_260802263.pdf"
+ },
+ {
+  "date": "2026-08-12",
+  "supplier": "MAG DIS",
+  "number": "27004120",
+  "avoir": false,
+  "file": "/factures/2026/2026-08-12_magdis_27004120.pdf"
+ },
+ {
+  "date": "2026-08-05",
+  "supplier": "Moulins Bourgeois",
+  "number": "260800730",
+  "avoir": false,
+  "file": "/factures/2026/2026-08-05_moulins-bourgeois_260800730.pdf"
+ },
+ {
+  "date": "2026-08-05",
+  "supplier": "MAG DIS",
+  "number": "27003492",
+  "avoir": false,
+  "file": "/factures/2026/2026-08-05_magdis_27003492.pdf"
+ },
+ {
+  "date": "2026-07-29",
+  "supplier": "Moulins Bourgeois",
+  "number": "260708517",
+  "avoir": false,
+  "file": "/factures/2026/2026-07-29_moulins-bourgeois_260708517.pdf"
+ },
+ {
+  "date": "2026-07-29",
+  "supplier": "MAG DIS",
+  "number": "27002795",
+  "avoir": false,
+  "file": "/factures/2026/2026-07-29_magdis_27002795.pdf"
+ },
+ {
+  "date": "2026-07-23",
+  "supplier": "MAG DIS",
+  "number": "27002202",
+  "avoir": false,
+  "file": "/factures/2026/2026-07-23_magdis_27002202.pdf"
+ },
+ {
+  "date": "2026-07-22",
+  "supplier": "Moulins Bourgeois",
+  "number": "260706586",
+  "avoir": false,
+  "file": "/factures/2026/2026-07-22_moulins-bourgeois_260706586.pdf"
+ },
+ {
+  "date": "2026-07-22",
+  "supplier": "MAG DIS",
+  "number": "27002083",
+  "avoir": false,
+  "file": "/factures/2026/2026-07-22_magdis_27002083.pdf"
+ },
+ {
+  "date": "2026-07-22",
+  "supplier": "MAG DIS",
+  "number": "27900144",
+  "avoir": true,
+  "file": "/factures/2026/2026-07-22_magdis_27900144.pdf"
+ },
+ {
+  "date": "2026-07-21",
+  "supplier": "MAG DIS",
+  "number": "27001922",
+  "avoir": false,
+  "file": "/factures/2026/2026-07-21_magdis_27001922.pdf"
+ },
+ {
+  "date": "2026-07-15",
+  "supplier": "Moulins Bourgeois",
+  "number": "260704427",
+  "avoir": false,
+  "file": "/factures/2026/2026-07-15_moulins-bourgeois_260704427.pdf"
+ },
+ {
+  "date": "2026-07-08",
+  "supplier": "Moulins Bourgeois",
+  "number": "260702442",
+  "avoir": false,
+  "file": "/factures/2026/2026-07-08_moulins-bourgeois_260702442.pdf"
+ },
+ {
+  "date": "2026-07-08",
+  "supplier": "MAG DIS",
+  "number": "27000661",
+  "avoir": false,
+  "file": "/factures/2026/2026-07-08_magdis_27000661.pdf"
+ },
+ {
+  "date": "2026-07-08",
+  "supplier": "MAG DIS",
+  "number": "27900056",
+  "avoir": true,
+  "file": "/factures/2026/2026-07-08_magdis_27900056.pdf"
+ },
+ {
+  "date": "2026-07-06",
+  "supplier": "MAG DIS",
+  "number": "27000229",
+  "avoir": false,
+  "file": "/factures/2026/2026-07-06_magdis_27000229.pdf"
+ },
+ {
+  "date": "2026-07-01",
+  "supplier": "Moulins Bourgeois",
+  "number": "260700249",
+  "avoir": false,
+  "file": "/factures/2026/2026-07-01_moulins-bourgeois_260700249.pdf"
+ },
+ {
+  "date": "2026-06-30",
+  "supplier": "MAG DIS",
+  "number": "26030333",
+  "avoir": false,
+  "file": "/factures/2026/2026-06-30_magdis_26030333.pdf"
+ },
+ {
+  "date": "2026-06-24",
+  "supplier": "Moulins Bourgeois",
+  "number": "260608010",
+  "avoir": false,
+  "file": "/factures/2026/2026-06-24_moulins-bourgeois_260608010.pdf"
+ },
+ {
+  "date": "2026-06-24",
+  "supplier": "Moulins Bourgeois",
+  "number": "260607859",
+  "avoir": false,
+  "file": "/factures/2026/2026-06-24_moulins-bourgeois_260607859.pdf"
+ },
+ {
+  "date": "2026-06-24",
+  "supplier": "MAG DIS",
+  "number": "26029631",
+  "avoir": false,
+  "file": "/factures/2026/2026-06-24_magdis_26029631.pdf"
+ },
+ {
+  "date": "2026-06-17",
+  "supplier": "MAG DIS",
+  "number": "26028839",
+  "avoir": false,
+  "file": "/factures/2026/2026-06-17_magdis_26028839.pdf"
+ },
+ {
+  "date": "2026-06-17",
+  "supplier": "Moulins Bourgeois",
+  "number": "260605604",
+  "avoir": false,
+  "file": "/factures/2026/2026-06-17_moulins-bourgeois_260605604.pdf"
+ },
+ {
+  "date": "2026-06-10",
+  "supplier": "Moulins Bourgeois",
+  "number": "260603331",
+  "avoir": false,
+  "file": "/factures/2026/2026-06-10_moulins-bourgeois_260603331.pdf"
+ },
+ {
+  "date": "2026-06-08",
+  "supplier": "EDEN VERT 3D",
+  "number": "F76-26-01207",
+  "avoir": false,
+  "file": "/factures/2026/2026-06-08_eden-vert_F76-26-01207.pdf"
+ },
+ {
+  "date": "2026-06-08",
+  "supplier": "MAG DIS",
+  "number": "26027572",
+  "avoir": false,
+  "file": "/factures/2026/2026-06-08_magdis_26027572.pdf"
+ },
+ {
+  "date": "2026-06-03",
+  "supplier": "MAG DIS",
+  "number": "26027288",
+  "avoir": false,
+  "file": "/factures/2026/2026-06-03_magdis_26027288.pdf"
+ },
+ {
+  "date": "2026-06-03",
+  "supplier": "Moulins Bourgeois",
+  "number": "260601028",
+  "avoir": false,
+  "file": "/factures/2026/2026-06-03_moulins-bourgeois_260601028.pdf"
+ },
+ {
+  "date": "2026-05-29",
+  "supplier": "MAG DIS",
+  "number": "26026759",
+  "avoir": false,
+  "file": "/factures/2026/2026-05-29_magdis_26026759.pdf"
+ },
+ {
+  "date": "2026-05-27",
+  "supplier": "Moulins Bourgeois",
+  "number": "260507885",
+  "avoir": false,
+  "file": "/factures/2026/2026-05-27_moulins-bourgeois_260507885.pdf"
+ },
+ {
+  "date": "2026-05-27",
+  "supplier": "MAG DIS",
+  "number": "26026415",
+  "avoir": false,
+  "file": "/factures/2026/2026-05-27_magdis_26026415.pdf"
+ },
+ {
+  "date": "2026-05-21",
+  "supplier": "MAG DIS",
+  "number": "26025835",
+  "avoir": false,
+  "file": "/factures/2026/2026-05-21_magdis_26025835.pdf"
+ },
+ {
+  "date": "2026-05-20",
+  "supplier": "MAG DIS",
+  "number": "26025692",
+  "avoir": false,
+  "file": "/factures/2026/2026-05-20_magdis_26025692.pdf"
+ },
+ {
+  "date": "2026-05-20",
+  "supplier": "Moulins Bourgeois",
+  "number": "260505675",
+  "avoir": false,
+  "file": "/factures/2026/2026-05-20_moulins-bourgeois_260505675.pdf"
+ },
+ {
+  "date": "2026-05-13",
+  "supplier": "Moulins Bourgeois",
+  "number": "260503724",
+  "avoir": false,
+  "file": "/factures/2026/2026-05-13_moulins-bourgeois_260503724.pdf"
+ },
+ {
+  "date": "2026-05-06",
+  "supplier": "Moulins Bourgeois",
+  "number": "260501334",
+  "avoir": false,
+  "file": "/factures/2026/2026-05-06_moulins-bourgeois_260501334.pdf"
+ },
+ {
+  "date": "2026-05-06",
+  "supplier": "MAG DIS",
+  "number": "26024262",
+  "avoir": false,
+  "file": "/factures/2026/2026-05-06_magdis_26024262.pdf"
+ },
+ {
+  "date": "2026-04-29",
+  "supplier": "Moulins Bourgeois",
+  "number": "260409136",
+  "avoir": false,
+  "file": "/factures/2026/2026-04-29_moulins-bourgeois_260409136.pdf"
+ },
+ {
+  "date": "2026-04-29",
+  "supplier": "MAG DIS",
+  "number": "26023538",
+  "avoir": false,
+  "file": "/factures/2026/2026-04-29_magdis_26023538.pdf"
+ },
+ {
+  "date": "2026-04-22",
+  "supplier": "Moulins Bourgeois",
+  "number": "260406850",
+  "avoir": false,
+  "file": "/factures/2026/2026-04-22_moulins-bourgeois_260406850.pdf"
+ },
+ {
+  "date": "2026-04-22",
+  "supplier": "MAG DIS",
+  "number": "26022783",
+  "avoir": false,
+  "file": "/factures/2026/2026-04-22_magdis_26022783.pdf"
+ },
+ {
+  "date": "2026-04-22",
+  "supplier": "MAG DIS",
+  "number": "26900954",
+  "avoir": true,
+  "file": "/factures/2026/2026-04-22_magdis_26900954.pdf"
+ },
+ {
+  "date": "2026-04-15",
+  "supplier": "Boissons",
+  "number": "F26-00247",
+  "avoir": false,
+  "file": "/factures/2026/2026-04-15_boissons_F26-00247.pdf"
+ },
+ {
+  "date": "2026-04-15",
+  "supplier": "Moulins Bourgeois",
+  "number": "260404615",
+  "avoir": false,
+  "file": "/factures/2026/2026-04-15_moulins-bourgeois_260404615.pdf"
+ },
+ {
+  "date": "2026-04-15",
+  "supplier": "MAG DIS",
+  "number": "26022107",
+  "avoir": false,
+  "file": "/factures/2026/2026-04-15_magdis_26022107.pdf"
+ },
+ {
+  "date": "2026-04-15",
+  "supplier": "MAG DIS",
+  "number": "26900894",
+  "avoir": true,
+  "file": "/factures/2026/2026-04-15_magdis_26900894.pdf"
+ },
+ {
+  "date": "2026-04-08",
+  "supplier": "MAG DIS",
+  "number": "26021318",
+  "avoir": false,
+  "file": "/factures/2026/2026-04-08_magdis_26021318.pdf"
+ },
+ {
+  "date": "2026-04-08",
+  "supplier": "Moulins Bourgeois",
+  "number": "260402281",
+  "avoir": false,
+  "file": "/factures/2026/2026-04-08_moulins-bourgeois_260402281.pdf"
+ },
+ {
+  "date": "2026-04-01",
+  "supplier": "Moulins Bourgeois",
+  "number": "260400220",
+  "avoir": false,
+  "file": "/factures/2026/2026-04-01_moulins-bourgeois_260400220.pdf"
+ },
+ {
+  "date": "2026-03-31",
+  "supplier": "MAG DIS",
+  "number": "26020618",
+  "avoir": false,
+  "file": "/factures/2026/2026-03-31_magdis_26020618.pdf"
+ },
+ {
+  "date": "2026-03-30",
+  "supplier": "EDEN VERT 3D",
+  "number": "F76-26-00642",
+  "avoir": false,
+  "file": "/factures/2026/2026-03-30_eden-vert_F76-26-00642.pdf"
+ },
+ {
+  "date": "2026-03-30",
+  "supplier": "MAG DIS",
+  "number": "26020164",
+  "avoir": false,
+  "file": "/factures/2026/2026-03-30_magdis_26020164.pdf"
+ },
+ {
+  "date": "2026-03-25",
+  "supplier": "Moulins Bourgeois",
+  "number": "260307680",
+  "avoir": false,
+  "file": "/factures/2026/2026-03-25_moulins-bourgeois_260307680.pdf"
+ },
+ {
+  "date": "2026-03-25",
+  "supplier": "MAG DIS",
+  "number": "26019876",
+  "avoir": false,
+  "file": "/factures/2026/2026-03-25_magdis_26019876.pdf"
+ },
+ {
+  "date": "2026-03-25",
+  "supplier": "MAG DIS",
+  "number": "26900711",
+  "avoir": true,
+  "file": "/factures/2026/2026-03-25_magdis_26900711.pdf"
+ },
+ {
+  "date": "2026-03-18",
+  "supplier": "MAG DIS",
+  "number": "26019175",
+  "avoir": false,
+  "file": "/factures/2026/2026-03-18_magdis_26019175.pdf"
+ },
+ {
+  "date": "2026-03-18",
+  "supplier": "Moulins Bourgeois",
+  "number": "260305379",
+  "avoir": false,
+  "file": "/factures/2026/2026-03-18_moulins-bourgeois_260305379.pdf"
+ },
+ {
+  "date": "2026-03-14",
+  "supplier": "La Rose de Tunis",
+  "number": "FV2602593",
+  "avoir": false,
+  "file": "/factures/2026/2026-03-14_rose-de-tunis_FV2602593.pdf"
+ },
+ {
+  "date": "2026-03-11",
+  "supplier": "Moulins Bourgeois",
+  "number": "260303126",
+  "avoir": false,
+  "file": "/factures/2026/2026-03-11_moulins-bourgeois_260303126.pdf"
+ },
+ {
+  "date": "2026-03-11",
+  "supplier": "MAG DIS",
+  "number": "26018453",
+  "avoir": false,
+  "file": "/factures/2026/2026-03-11_magdis_26018453.pdf"
+ },
+ {
+  "date": "2026-03-04",
+  "supplier": "Moulins Bourgeois",
+  "number": "260300919",
+  "avoir": false,
+  "file": "/factures/2026/2026-03-04_moulins-bourgeois_260300919.pdf"
+ },
+ {
+  "date": "2026-03-04",
+  "supplier": "MAG DIS",
+  "number": "26017787",
+  "avoir": false,
+  "file": "/factures/2026/2026-03-04_magdis_26017787.pdf"
+ },
+ {
+  "date": "2026-02-28",
+  "supplier": "La Rose de Tunis",
+  "number": "FV2601881",
+  "avoir": false,
+  "file": "/factures/2026/2026-02-28_rose-de-tunis_FV2601881.pdf"
+ },
+ {
+  "date": "2026-02-25",
+  "supplier": "MAG DIS",
+  "number": "26017162",
+  "avoir": false,
+  "file": "/factures/2026/2026-02-25_magdis_26017162.pdf"
+ },
+ {
+  "date": "2026-02-18",
+  "supplier": "MAG DIS",
+  "number": "26016629",
+  "avoir": false,
+  "file": "/factures/2026/2026-02-18_magdis_26016629.pdf"
+ },
+ {
+  "date": "2026-02-16",
+  "supplier": "La Rose de Tunis",
+  "number": "FV2600864",
+  "avoir": false,
+  "file": "/factures/2026/2026-02-16_rose-de-tunis_FV2600864.pdf"
+ },
+ {
+  "date": "2026-02-11",
+  "supplier": "MAG DIS",
+  "number": "26016054",
+  "avoir": false,
+  "file": "/factures/2026/2026-02-11_magdis_26016054.pdf"
+ },
+ {
+  "date": "2026-02-04",
+  "supplier": "MAG DIS",
+  "number": "26015440",
+  "avoir": false,
+  "file": "/factures/2026/2026-02-04_magdis_26015440.pdf"
+ },
+ {
+  "date": "2026-01-28",
+  "supplier": "MAG DIS",
+  "number": "26014827",
+  "avoir": false,
+  "file": "/factures/2026/2026-01-28_magdis_26014827.pdf"
+ },
+ {
+  "date": "2026-01-21",
+  "supplier": "Moulins Bourgeois",
+  "number": "26015605",
+  "avoir": false,
+  "file": "/factures/2026/2026-01-21_moulins-bourgeois_26015605.pdf"
+ },
+ {
+  "date": "2026-01-21",
+  "supplier": "MAG DIS",
+  "number": "26014263",
+  "avoir": false,
+  "file": "/factures/2026/2026-01-21_magdis_26014263.pdf"
+ },
+ {
+  "date": "2026-01-14",
+  "supplier": "MAG DIS",
+  "number": "26013703",
+  "avoir": false,
+  "file": "/factures/2026/2026-01-14_magdis_26013703.pdf"
+ },
+ {
+  "date": "2026-01-08",
+  "supplier": "MAG DIS",
+  "number": "26013191",
+  "avoir": false,
+  "file": "/factures/2026/2026-01-08_magdis_26013191.pdf"
+ },
+ {
+  "date": "2026-01-07",
+  "supplier": "Moulins Bourgeois",
+  "number": "26011452",
+  "avoir": false,
+  "file": "/factures/2026/2026-01-07_moulins-bourgeois_26011452.pdf"
+ },
+ {
+  "date": "2025-12-31",
+  "supplier": "Moulins Bourgeois",
+  "number": "25129459",
+  "avoir": false,
+  "file": "/factures/2025/2025-12-31_moulins-bourgeois_25129459.pdf"
+ },
+ {
+  "date": "2025-12-31",
+  "supplier": "MAG DIS",
+  "number": "26012748",
+  "avoir": false,
+  "file": "/factures/2025/2025-12-31_magdis_26012748.pdf"
+ },
+ {
+  "date": "2025-12-24",
+  "supplier": "Moulins Bourgeois",
+  "number": "25127533",
+  "avoir": false,
+  "file": "/factures/2025/2025-12-24_moulins-bourgeois_25127533.pdf"
+ },
+ {
+  "date": "2025-12-24",
+  "supplier": "MAG DIS",
+  "number": "26012270",
+  "avoir": false,
+  "file": "/factures/2025/2025-12-24_magdis_26012270.pdf"
+ },
+ {
+  "date": "2025-12-18",
+  "supplier": "MAG DIS",
+  "number": "26011576",
+  "avoir": false,
+  "file": "/factures/2025/2025-12-18_magdis_26011576.pdf"
+ },
+ {
+  "date": "2025-12-17",
+  "supplier": "Moulins Bourgeois",
+  "number": "25125140",
+  "avoir": false,
+  "file": "/factures/2025/2025-12-17_moulins-bourgeois_25125140.pdf"
+ },
+ {
+  "date": "2025-12-11",
+  "supplier": "MAG DIS",
+  "number": "26010995",
+  "avoir": false,
+  "file": "/factures/2025/2025-12-11_magdis_26010995.pdf"
+ },
+ {
+  "date": "2025-12-10",
+  "supplier": "Moulins Bourgeois",
+  "number": "25122973",
+  "avoir": false,
+  "file": "/factures/2025/2025-12-10_moulins-bourgeois_25122973.pdf"
+ },
+ {
+  "date": "2025-12-04",
+  "supplier": "MAG DIS",
+  "number": "26010442",
+  "avoir": false,
+  "file": "/factures/2025/2025-12-04_magdis_26010442.pdf"
+ },
+ {
+  "date": "2025-12-02",
+  "supplier": "EDEN VERT 3D",
+  "number": "F76-25-02602",
+  "avoir": false,
+  "file": "/factures/2025/2025-12-02_eden-vert_F76-25-02602.pdf"
+ },
+ {
+  "date": "2025-11-27",
+  "supplier": "MAG DIS",
+  "number": "26009895",
+  "avoir": false,
+  "file": "/factures/2025/2025-11-27_magdis_26009895.pdf"
+ },
+ {
+  "date": "2025-11-26",
+  "supplier": "Moulins Bourgeois",
+  "number": "25117053",
+  "avoir": false,
+  "file": "/factures/2025/2025-11-26_moulins-bourgeois_25117053.pdf"
+ },
+ {
+  "date": "2025-11-20",
+  "supplier": "MAG DIS",
+  "number": "26009380",
+  "avoir": false,
+  "file": "/factures/2025/2025-11-20_magdis_26009380.pdf"
+ },
+ {
+  "date": "2025-11-19",
+  "supplier": "Moulins Bourgeois",
+  "number": "25114983",
+  "avoir": false,
+  "file": "/factures/2025/2025-11-19_moulins-bourgeois_25114983.pdf"
+ },
+ {
+  "date": "2025-11-12",
+  "supplier": "Moulins Bourgeois",
+  "number": "25112847",
+  "avoir": false,
+  "file": "/factures/2025/2025-11-12_moulins-bourgeois_25112847.pdf"
+ },
+ {
+  "date": "2025-11-10",
+  "supplier": "MAG DIS",
+  "number": "26008677",
+  "avoir": false,
+  "file": "/factures/2025/2025-11-10_magdis_26008677.pdf"
+ },
+ {
+  "date": "2025-11-06",
+  "supplier": "MAG DIS",
+  "number": "26008375",
+  "avoir": false,
+  "file": "/factures/2025/2025-11-06_magdis_26008375.pdf"
+ },
+ {
+  "date": "2025-11-05",
+  "supplier": "Moulins Bourgeois",
+  "number": "25110937",
+  "avoir": false,
+  "file": "/factures/2025/2025-11-05_moulins-bourgeois_25110937.pdf"
+ },
+ {
+  "date": "2025-10-30",
+  "supplier": "MAG DIS",
+  "number": "26007885",
+  "avoir": false,
+  "file": "/factures/2025/2025-10-30_magdis_26007885.pdf"
+ },
+ {
+  "date": "2025-10-29",
+  "supplier": "Moulins Bourgeois",
+  "number": "25108246",
+  "avoir": false,
+  "file": "/factures/2025/2025-10-29_moulins-bourgeois_25108246.pdf"
+ },
+ {
+  "date": "2025-10-23",
+  "supplier": "MAG DIS",
+  "number": "26007379",
+  "avoir": false,
+  "file": "/factures/2025/2025-10-23_magdis_26007379.pdf"
+ },
+ {
+  "date": "2025-10-22",
+  "supplier": "Moulins Bourgeois",
+  "number": "25106273",
+  "avoir": false,
+  "file": "/factures/2025/2025-10-22_moulins-bourgeois_25106273.pdf"
+ },
+ {
+  "date": "2025-10-20",
+  "supplier": "MAG DIS",
+  "number": "26007060",
+  "avoir": false,
+  "file": "/factures/2025/2025-10-20_magdis_26007060.pdf"
+ },
+ {
+  "date": "2025-10-15",
+  "supplier": "Moulins Bourgeois",
+  "number": "25104244",
+  "avoir": false,
+  "file": "/factures/2025/2025-10-15_moulins-bourgeois_25104244.pdf"
+ },
+ {
+  "date": "2025-10-09",
+  "supplier": "MAG DIS",
+  "number": "26006509",
+  "avoir": false,
+  "file": "/factures/2025/2025-10-09_magdis_26006509.pdf"
+ },
+ {
+  "date": "2025-10-08",
+  "supplier": "Moulins Bourgeois",
+  "number": "25102179",
+  "avoir": false,
+  "file": "/factures/2025/2025-10-08_moulins-bourgeois_25102179.pdf"
+ },
+ {
+  "date": "2025-10-02",
+  "supplier": "MAG DIS",
+  "number": "26006130",
+  "avoir": false,
+  "file": "/factures/2025/2025-10-02_magdis_26006130.pdf"
+ },
+ {
+  "date": "2025-10-01",
+  "supplier": "Moulins Bourgeois",
+  "number": "25100195",
+  "avoir": false,
+  "file": "/factures/2025/2025-10-01_moulins-bourgeois_25100195.pdf"
+ },
+ {
+  "date": "2025-09-30",
+  "supplier": "MAG DIS",
+  "number": "26005932",
+  "avoir": false,
+  "file": "/factures/2025/2025-09-30_magdis_26005932.pdf"
+ },
+ {
+  "date": "2025-09-25",
+  "supplier": "MAG DIS",
+  "number": "26005466",
+  "avoir": false,
+  "file": "/factures/2025/2025-09-25_magdis_26005466.pdf"
+ },
+ {
+  "date": "2025-09-24",
+  "supplier": "Moulins Bourgeois",
+  "number": "25096832",
+  "avoir": false,
+  "file": "/factures/2025/2025-09-24_moulins-bourgeois_25096832.pdf"
+ },
+ {
+  "date": "2025-09-18",
+  "supplier": "MAG DIS",
+  "number": "26004992",
+  "avoir": false,
+  "file": "/factures/2025/2025-09-18_magdis_26004992.pdf"
+ },
+ {
+  "date": "2025-09-17",
+  "supplier": "Moulins Bourgeois",
+  "number": "25094843",
+  "avoir": false,
+  "file": "/factures/2025/2025-09-17_moulins-bourgeois_25094843.pdf"
+ },
+ {
+  "date": "2025-09-15",
+  "supplier": "MAG DIS",
+  "number": "26004758",
+  "avoir": false,
+  "file": "/factures/2025/2025-09-15_magdis_26004758.pdf"
+ },
+ {
+  "date": "2025-09-11",
+  "supplier": "MAG DIS",
+  "number": "26004511",
+  "avoir": false,
+  "file": "/factures/2025/2025-09-11_magdis_26004511.pdf"
+ },
+ {
+  "date": "2025-09-10",
+  "supplier": "Moulins Bourgeois",
+  "number": "25092865",
+  "avoir": false,
+  "file": "/factures/2025/2025-09-10_moulins-bourgeois_25092865.pdf"
+ },
+ {
+  "date": "2025-09-04",
+  "supplier": "MAG DIS",
+  "number": "26004045",
+  "avoir": false,
+  "file": "/factures/2025/2025-09-04_magdis_26004045.pdf"
+ },
+ {
+  "date": "2025-09-03",
+  "supplier": "Moulins Bourgeois",
+  "number": "25090880",
+  "avoir": false,
+  "file": "/factures/2025/2025-09-03_moulins-bourgeois_25090880.pdf"
+ },
+ {
+  "date": "2025-08-27",
+  "supplier": "Moulins Bourgeois",
+  "number": "25085179",
+  "avoir": false,
+  "file": "/factures/2025/2025-08-27_moulins-bourgeois_25085179.pdf"
+ },
+ {
+  "date": "2025-08-21",
+  "supplier": "MAG DIS",
+  "number": "26003112",
+  "avoir": false,
+  "file": "/factures/2025/2025-08-21_magdis_26003112.pdf"
+ },
+ {
+  "date": "2025-08-20",
+  "supplier": "Moulins Bourgeois",
+  "number": "25083546",
+  "avoir": false,
+  "file": "/factures/2025/2025-08-20_moulins-bourgeois_25083546.pdf"
+ },
+ {
+  "date": "2025-08-16",
+  "supplier": "La Rose de Tunis",
+  "number": "FV2504413",
+  "avoir": false,
+  "file": "/factures/2025/2025-08-16_rose-de-tunis_FV2504413.pdf"
+ },
+ {
+  "date": "2025-08-13",
+  "supplier": "Moulins Bourgeois",
+  "number": "25082300",
+  "avoir": false,
+  "file": "/factures/2025/2025-08-13_moulins-bourgeois_25082300.pdf"
+ },
+ {
+  "date": "2025-08-07",
+  "supplier": "MAG DIS",
+  "number": "26002338",
+  "avoir": false,
+  "file": "/factures/2025/2025-08-07_magdis_26002338.pdf"
+ },
+ {
+  "date": "2025-08-06",
+  "supplier": "Moulins Bourgeois",
+  "number": "25080981",
+  "avoir": false,
+  "file": "/factures/2025/2025-08-06_moulins-bourgeois_25080981.pdf"
+ },
+ {
+  "date": "2025-07-31",
+  "supplier": "MAG DIS",
+  "number": "26001875",
+  "avoir": false,
+  "file": "/factures/2025/2025-07-31_magdis_26001875.pdf"
+ },
+ {
+  "date": "2025-07-30",
+  "supplier": "Moulins Bourgeois",
+  "number": "25077604",
+  "avoir": false,
+  "file": "/factures/2025/2025-07-30_moulins-bourgeois_25077604.pdf"
+ },
+ {
+  "date": "2025-07-23",
+  "supplier": "Moulins Bourgeois",
+  "number": "25075974",
+  "avoir": false,
+  "file": "/factures/2025/2025-07-23_moulins-bourgeois_25075974.pdf"
+ },
+ {
+  "date": "2025-07-16",
+  "supplier": "Moulins Bourgeois",
+  "number": "25074183",
+  "avoir": false,
+  "file": "/factures/2025/2025-07-16_moulins-bourgeois_25074183.pdf"
+ },
+ {
+  "date": "2025-07-10",
+  "supplier": "MAG DIS",
+  "number": "26000710",
+  "avoir": false,
+  "file": "/factures/2025/2025-07-10_magdis_26000710.pdf"
+ },
+ {
+  "date": "2025-07-09",
+  "supplier": "Moulins Bourgeois",
+  "number": "25072405",
+  "avoir": false,
+  "file": "/factures/2025/2025-07-09_moulins-bourgeois_25072405.pdf"
+ },
+ {
+  "date": "2025-07-03",
+  "supplier": "MAG DIS",
+  "number": "26000056",
+  "avoir": false,
+  "file": "/factures/2025/2025-07-03_magdis_26000056.pdf"
+ },
+ {
+  "date": "2025-07-02",
+  "supplier": "Moulins Bourgeois",
+  "number": "25070580",
+  "avoir": false,
+  "file": "/factures/2025/2025-07-02_moulins-bourgeois_25070580.pdf"
+ },
+ {
+  "date": "2025-06-26",
+  "supplier": "MAG DIS",
+  "number": "25022273",
+  "avoir": false,
+  "file": "/factures/2025/2025-06-26_magdis_25022273.pdf"
+ },
+ {
+  "date": "2025-06-25",
+  "supplier": "Moulins Bourgeois",
+  "number": "25066800",
+  "avoir": false,
+  "file": "/factures/2025/2025-06-25_moulins-bourgeois_25066800.pdf"
+ },
+ {
+  "date": "2025-06-19",
+  "supplier": "MAG DIS",
+  "number": "25021778",
+  "avoir": false,
+  "file": "/factures/2025/2025-06-19_magdis_25021778.pdf"
+ },
+ {
+  "date": "2025-06-18",
+  "supplier": "Moulins Bourgeois",
+  "number": "25064839",
+  "avoir": false,
+  "file": "/factures/2025/2025-06-18_moulins-bourgeois_25064839.pdf"
+ },
+ {
+  "date": "2025-06-11",
+  "supplier": "Moulins Bourgeois",
+  "number": "25062784",
+  "avoir": false,
+  "file": "/factures/2025/2025-06-11_moulins-bourgeois_25062784.pdf"
+ },
+ {
+  "date": "2025-06-09",
+  "supplier": "EDEN VERT 3D",
+  "number": "F76-25-01041",
+  "avoir": false,
+  "file": "/factures/2025/2025-06-09_eden-vert_F76-25-01041.pdf"
+ },
+ {
+  "date": "2025-06-05",
+  "supplier": "MAG DIS",
+  "number": "25020791",
+  "avoir": false,
+  "file": "/factures/2025/2025-06-05_magdis_25020791.pdf"
+ },
+ {
+  "date": "2025-06-04",
+  "supplier": "Moulins Bourgeois",
+  "number": "25060925",
+  "avoir": false,
+  "file": "/factures/2025/2025-06-04_moulins-bourgeois_25060925.pdf"
+ },
+ {
+  "date": "2025-05-31",
+  "supplier": "La Rose de Tunis",
+  "number": "FV2503843",
+  "avoir": false,
+  "file": "/factures/2025/2025-05-31_rose-de-tunis_FV2503843.pdf"
+ },
+ {
+  "date": "2025-05-30",
+  "supplier": "MAG DIS",
+  "number": "25020271",
+  "avoir": false,
+  "file": "/factures/2025/2025-05-30_magdis_25020271.pdf"
+ },
+ {
+  "date": "2025-05-22",
+  "supplier": "MAG DIS",
+  "number": "25019810",
+  "avoir": false,
+  "file": "/factures/2025/2025-05-22_magdis_25019810.pdf"
+ },
+ {
+  "date": "2025-05-21",
+  "supplier": "Moulins Bourgeois",
+  "number": "25055418",
+  "avoir": false,
+  "file": "/factures/2025/2025-05-21_moulins-bourgeois_25055418.pdf"
+ },
+ {
+  "date": "2025-05-15",
+  "supplier": "MAG DIS",
+  "number": "25019299",
+  "avoir": false,
+  "file": "/factures/2025/2025-05-15_magdis_25019299.pdf"
+ },
+ {
+  "date": "2025-05-14",
+  "supplier": "Moulins Bourgeois",
+  "number": "25053400",
+  "avoir": false,
+  "file": "/factures/2025/2025-05-14_moulins-bourgeois_25053400.pdf"
+ },
+ {
+  "date": "2025-05-09",
+  "supplier": "MAG DIS",
+  "number": "25018803",
+  "avoir": false,
+  "file": "/factures/2025/2025-05-09_magdis_25018803.pdf"
+ },
+ {
+  "date": "2025-05-07",
+  "supplier": "Moulins Bourgeois",
+  "number": "25051542",
+  "avoir": false,
+  "file": "/factures/2025/2025-05-07_moulins-bourgeois_25051542.pdf"
+ },
+ {
+  "date": "2025-04-30",
+  "supplier": "MAG DIS",
+  "number": "25018362",
+  "avoir": false,
+  "file": "/factures/2025/2025-04-30_magdis_25018362.pdf"
+ },
+ {
+  "date": "2025-04-30",
+  "supplier": "Moulins Bourgeois",
+  "number": "25048262",
+  "avoir": false,
+  "file": "/factures/2025/2025-04-30_moulins-bourgeois_25048262.pdf"
+ },
+ {
+  "date": "2025-04-23",
+  "supplier": "Moulins Bourgeois",
+  "number": "25046175",
+  "avoir": false,
+  "file": "/factures/2025/2025-04-23_moulins-bourgeois_25046175.pdf"
+ },
+ {
+  "date": "2025-04-17",
+  "supplier": "MAG DIS",
+  "number": "25017378",
+  "avoir": false,
+  "file": "/factures/2025/2025-04-17_magdis_25017378.pdf"
+ },
+ {
+  "date": "2025-04-10",
+  "supplier": "MAG DIS",
+  "number": "25016892",
+  "avoir": false,
+  "file": "/factures/2025/2025-04-10_magdis_25016892.pdf"
+ },
+ {
+  "date": "2025-04-09",
+  "supplier": "Moulins Bourgeois",
+  "number": "25042529",
+  "avoir": false,
+  "file": "/factures/2025/2025-04-09_moulins-bourgeois_25042529.pdf"
+ },
+ {
+  "date": "2025-04-03",
+  "supplier": "MAG DIS",
+  "number": "25016450",
+  "avoir": false,
+  "file": "/factures/2025/2025-04-03_magdis_25016450.pdf"
+ },
+ {
+  "date": "2025-04-02",
+  "supplier": "Moulins Bourgeois",
+  "number": "25040586",
+  "avoir": false,
+  "file": "/factures/2025/2025-04-02_moulins-bourgeois_25040586.pdf"
+ },
+ {
+  "date": "2025-03-27",
+  "supplier": "MAG DIS",
+  "number": "25015896",
+  "avoir": false,
+  "file": "/factures/2025/2025-03-27_magdis_25015896.pdf"
+ },
+ {
+  "date": "2025-03-26",
+  "supplier": "Moulins Bourgeois",
+  "number": "25036589",
+  "avoir": false,
+  "file": "/factures/2025/2025-03-26_moulins-bourgeois_25036589.pdf"
+ },
+ {
+  "date": "2025-03-20",
+  "supplier": "MAG DIS",
+  "number": "25015445",
+  "avoir": false,
+  "file": "/factures/2025/2025-03-20_magdis_25015445.pdf"
+ },
+ {
+  "date": "2025-03-19",
+  "supplier": "Moulins Bourgeois",
+  "number": "25034655",
+  "avoir": false,
+  "file": "/factures/2025/2025-03-19_moulins-bourgeois_25034655.pdf"
+ },
+ {
+  "date": "2025-03-13",
+  "supplier": "MAG DIS",
+  "number": "25014990",
+  "avoir": false,
+  "file": "/factures/2025/2025-03-13_magdis_25014990.pdf"
+ },
+ {
+  "date": "2025-03-12",
+  "supplier": "Moulins Bourgeois",
+  "number": "25032778",
+  "avoir": false,
+  "file": "/factures/2025/2025-03-12_moulins-bourgeois_25032778.pdf"
+ },
+ {
+  "date": "2025-03-06",
+  "supplier": "MAG DIS",
+  "number": "25014546",
+  "avoir": false,
+  "file": "/factures/2025/2025-03-06_magdis_25014546.pdf"
+ },
+ {
+  "date": "2025-03-05",
+  "supplier": "Moulins Bourgeois",
+  "number": "25030919",
+  "avoir": false,
+  "file": "/factures/2025/2025-03-05_moulins-bourgeois_25030919.pdf"
+ },
+ {
+  "date": "2025-02-27",
+  "supplier": "MAG DIS",
+  "number": "25014075",
+  "avoir": false,
+  "file": "/factures/2025/2025-02-27_magdis_25014075.pdf"
+ },
+ {
+  "date": "2025-02-26",
+  "supplier": "La Rose de Tunis",
+  "number": "FV2500910",
+  "avoir": false,
+  "file": "/factures/2025/2025-02-26_rose-de-tunis_FV2500910.pdf"
+ },
+ {
+  "date": "2025-02-26",
+  "supplier": "Moulins Bourgeois",
+  "number": "25026327",
+  "avoir": false,
+  "file": "/factures/2025/2025-02-26_moulins-bourgeois_25026327.pdf"
+ },
+ {
+  "date": "2025-02-20",
+  "supplier": "MAG DIS",
+  "number": "25013699",
+  "avoir": false,
+  "file": "/factures/2025/2025-02-20_magdis_25013699.pdf"
+ },
+ {
+  "date": "2025-02-19",
+  "supplier": "Moulins Bourgeois",
+  "number": "25024561",
+  "avoir": false,
+  "file": "/factures/2025/2025-02-19_moulins-bourgeois_25024561.pdf"
+ },
+ {
+  "date": "2025-02-13",
+  "supplier": "MAG DIS",
+  "number": "25013347",
+  "avoir": false,
+  "file": "/factures/2025/2025-02-13_magdis_25013347.pdf"
+ },
+ {
+  "date": "2025-02-12",
+  "supplier": "Moulins Bourgeois",
+  "number": "25023740",
+  "avoir": false,
+  "file": "/factures/2025/2025-02-12_moulins-bourgeois_25023740.pdf"
+ },
+ {
+  "date": "2025-02-10",
+  "supplier": "MAG DIS",
+  "number": "25013182",
+  "avoir": false,
+  "file": "/factures/2025/2025-02-10_magdis_25013182.pdf"
+ },
+ {
+  "date": "2025-02-06",
+  "supplier": "MAG DIS",
+  "number": "25012983",
+  "avoir": false,
+  "file": "/factures/2025/2025-02-06_magdis_25012983.pdf"
+ },
+ {
+  "date": "2025-02-05",
+  "supplier": "Moulins Bourgeois",
+  "number": "25020849",
+  "avoir": false,
+  "file": "/factures/2025/2025-02-05_moulins-bourgeois_25020849.pdf"
+ },
+ {
+  "date": "2025-01-30",
+  "supplier": "MAG DIS",
+  "number": "25012544",
+  "avoir": false,
+  "file": "/factures/2025/2025-01-30_magdis_25012544.pdf"
+ },
+ {
+  "date": "2025-01-29",
+  "supplier": "Moulins Bourgeois",
+  "number": "25017480",
+  "avoir": false,
+  "file": "/factures/2025/2025-01-29_moulins-bourgeois_25017480.pdf"
+ },
+ {
+  "date": "2025-01-22",
+  "supplier": "Moulins Bourgeois",
+  "number": "25015620",
+  "avoir": false,
+  "file": "/factures/2025/2025-01-22_moulins-bourgeois_25015620.pdf"
+ },
+ {
+  "date": "2025-01-16",
+  "supplier": "MAG DIS",
+  "number": "25011757",
+  "avoir": false,
+  "file": "/factures/2025/2025-01-16_magdis_25011757.pdf"
+ },
+ {
+  "date": "2025-01-15",
+  "supplier": "Moulins Bourgeois",
+  "number": "25013731",
+  "avoir": false,
+  "file": "/factures/2025/2025-01-15_moulins-bourgeois_25013731.pdf"
+ },
+ {
+  "date": "2025-01-09",
+  "supplier": "MAG DIS",
+  "number": "25011309",
+  "avoir": false,
+  "file": "/factures/2025/2025-01-09_magdis_25011309.pdf"
+ },
+ {
+  "date": "2025-01-08",
+  "supplier": "Moulins Bourgeois",
+  "number": "25011841",
+  "avoir": false,
+  "file": "/factures/2025/2025-01-08_moulins-bourgeois_25011841.pdf"
+ }
+]

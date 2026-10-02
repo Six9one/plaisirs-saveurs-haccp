@@ -24,6 +24,16 @@ import {
   Trash2,
 } from 'lucide-react';
 import { safeFormatTime } from '../utils/formatters';
+import supplierInvoicesData from '../data/supplierInvoices.json';
+
+interface SupplierInvoice {
+  date: string;
+  supplier: string;
+  number: string;
+  avoir: boolean;
+  file: string;
+}
+const SUPPLIER_INVOICES = supplierInvoicesData as SupplierInvoice[];
 
 interface AuditReportModuleProps {
   targets: TemperatureTarget[];
@@ -52,8 +62,24 @@ export const AuditReportModule: React.FC<AuditReportModuleProps> = ({
 }) => {
   // Tab switcher
   const [activeTab, setActiveTab] = useState<
-    'receipts' | 'cleanings' | 'temperatures' | 'dlc' | 'full_dossier'
-  >('receipts');
+    'factures' | 'receipts' | 'cleanings' | 'temperatures' | 'dlc' | 'full_dossier'
+  >('factures');
+
+  // Factures fournisseurs (PDF dans /public/factures)
+  const invoiceYears = Array.from(new Set(SUPPLIER_INVOICES.map((i) => i.date.slice(0, 4)))).sort().reverse();
+  const invoiceSuppliers = Array.from(new Set(SUPPLIER_INVOICES.map((i) => i.supplier)));
+  const [invoiceYear, setInvoiceYear] = useState<string>(invoiceYears[0] ?? '');
+  const [invoiceSupplier, setInvoiceSupplier] = useState<string>('Tous');
+  const [openInvoice, setOpenInvoice] = useState<SupplierInvoice | null>(null);
+  const invoiceMonths = Object.entries(
+    SUPPLIER_INVOICES.filter(
+      (i) => i.date.startsWith(invoiceYear) && (invoiceSupplier === 'Tous' || i.supplier === invoiceSupplier)
+    ).reduce<Record<string, SupplierInvoice[]>>((acc, inv) => {
+      const label = new Date(inv.date + 'T12:00:00').toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      (acc[label] ||= []).push(inv);
+      return acc;
+    }, {})
+  );
 
   const [dateFilter, setDateFilter] = useState<'today' | '7days' | '30days' | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -152,182 +178,157 @@ export const AuditReportModule: React.FC<AuditReportModuleProps> = ({
     window.print();
   };
 
-  return (
-    <div className="space-y-4 max-w-5xl mx-auto pb-24 px-1 sm:px-0 animate-in fade-in duration-150">
-      
-      {/* ================= 1. TOP HEADER (NO-PRINT) ================= */}
-      <div className="no-print bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-lg text-white">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-400 border border-amber-500/25 flex items-center justify-center shrink-0 shadow-inner">
-              <FileCheck2 className="w-6 h-6 text-amber-400" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-white tracking-tight">
-                  Historique & Dossier Sanitaire
-                </h2>
-                <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950 uppercase tracking-wider">
-                  HACCP Conforme
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">
-                Plaisirs & Saveurs • Traçabilité, factures, nettoyages et export officiel
-              </p>
-            </div>
-          </div>
+  const tabBtns = [
+    { id: 'factures' as const, label: 'Factures', icon: Receipt },
+    { id: 'receipts' as const, label: 'Réceptions', icon: PackageCheck },
+    { id: 'cleanings' as const, label: 'Nettoyage', icon: Sparkles },
+    { id: 'temperatures' as const, label: 'Températures', icon: Thermometer },
+    { id: 'dlc' as const, label: 'DLC', icon: Tag },
+  ];
 
+  return (
+    <div className="space-y-3 max-w-5xl mx-auto pb-24 px-1 sm:px-0 animate-in fade-in duration-150">
+
+      {/* En-tête minimal */}
+      <div className="no-print flex items-center justify-between gap-3 px-1">
+        <h2 className="text-lg font-black text-white">Historique</h2>
+        <div className="flex items-center gap-2">
           <button
+            type="button"
+            onClick={() => setActiveTab(activeTab === 'full_dossier' ? 'factures' : 'full_dossier')}
+            className="h-10 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+          >
+            <FileText className="w-4 h-4" />
+            <span>{activeTab === 'full_dossier' ? 'Fermer le dossier' : 'Dossier HACCP'}</span>
+          </button>
+          <button
+            type="button"
             onClick={handlePrint}
-            className="h-11 px-5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 active:scale-95 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 transition-all cursor-pointer whitespace-nowrap self-start sm:self-center"
+            className="h-10 px-4 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Printer className="w-4 h-4" />
-            <span>Générer / Imprimer PDF Couleur</span>
+            <span>Imprimer</span>
           </button>
-
         </div>
       </div>
 
-      {/* ================= 2. SMART 4-CARD CATEGORY SWITCHER (NO-PRINT) ================= */}
-      <div className="no-print grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
-        
-        {/* Card 1: Factures & Réceptions */}
-        <button
-          onClick={() => setActiveTab('receipts')}
-          className={`p-3.5 sm:p-4 rounded-3xl border text-left transition-all cursor-pointer active:scale-95 flex flex-col justify-between min-h-[110px] sm:min-h-[120px] ${
-            activeTab === 'receipts'
-              ? 'bg-blue-600 border-blue-400 text-white shadow-lg shadow-blue-600/30 ring-2 ring-blue-400/40'
-              : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-850 hover:border-slate-700'
-          }`}
-        >
-          <div className="flex items-center justify-between w-full">
-            <div className={`p-2 rounded-2xl ${activeTab === 'receipts' ? 'bg-white/20 text-white' : 'bg-blue-500/20 text-blue-400'}`}>
-              <Receipt className="w-5 h-5" />
-            </div>
-            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${activeTab === 'receipts' ? 'bg-white text-blue-900' : 'bg-slate-800 text-slate-400'}`}>
-              {filteredReceipts.length} livraisons
-            </span>
-          </div>
-          <div className="mt-2">
-            <h3 className="text-xs sm:text-sm font-black tracking-tight leading-tight">
-              Factures & Réceptions
-            </h3>
-            <p className={`text-[11px] font-medium mt-0.5 truncate ${activeTab === 'receipts' ? 'text-blue-100' : 'text-slate-400'}`}>
-              Bons & photos de courses
-            </p>
-          </div>
-        </button>
-
-        {/* Card 2: Nettoyages */}
-        <button
-          onClick={() => setActiveTab('cleanings')}
-          className={`p-3.5 sm:p-4 rounded-3xl border text-left transition-all cursor-pointer active:scale-95 flex flex-col justify-between min-h-[110px] sm:min-h-[120px] ${
-            activeTab === 'cleanings'
-              ? 'bg-emerald-600 border-emerald-400 text-white shadow-lg shadow-emerald-600/30 ring-2 ring-emerald-400/40'
-              : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-850 hover:border-slate-700'
-          }`}
-        >
-          <div className="flex items-center justify-between w-full">
-            <div className={`p-2 rounded-2xl ${activeTab === 'cleanings' ? 'bg-white/20 text-white' : 'bg-emerald-500/20 text-emerald-400'}`}>
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${activeTab === 'cleanings' ? 'bg-white text-emerald-900' : 'bg-slate-800 text-slate-400'}`}>
-              {filteredCleanings.length} nettoyées
-            </span>
-          </div>
-          <div className="mt-2">
-            <h3 className="text-xs sm:text-sm font-black tracking-tight leading-tight">
-              Nettoyage Machines
-            </h3>
-            <p className={`text-[11px] font-medium mt-0.5 truncate ${activeTab === 'cleanings' ? 'text-emerald-100' : 'text-slate-400'}`}>
-              Historique avec photos
-            </p>
-          </div>
-        </button>
-
-        {/* Card 3: Relevés Températures */}
-        <button
-          onClick={() => setActiveTab('temperatures')}
-          className={`p-3.5 sm:p-4 rounded-3xl border text-left transition-all cursor-pointer active:scale-95 flex flex-col justify-between min-h-[110px] sm:min-h-[120px] ${
-            activeTab === 'temperatures'
-              ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg shadow-indigo-600/30 ring-2 ring-indigo-400/40'
-              : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-850 hover:border-slate-700'
-          }`}
-        >
-          <div className="flex items-center justify-between w-full">
-            <div className={`p-2 rounded-2xl ${activeTab === 'temperatures' ? 'bg-white/20 text-white' : 'bg-indigo-500/20 text-indigo-400'}`}>
-              <Thermometer className="w-5 h-5" />
-            </div>
-            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${activeTab === 'temperatures' ? 'bg-white text-indigo-900' : 'bg-slate-800 text-slate-400'}`}>
-              {filteredRecords.length} relevés
-            </span>
-          </div>
-          <div className="mt-2">
-            <h3 className="text-xs sm:text-sm font-black tracking-tight leading-tight">
-              Relevés T° Froid
-            </h3>
-            <p className={`text-[11px] font-medium mt-0.5 truncate ${activeTab === 'temperatures' ? 'text-indigo-100' : 'text-slate-400'}`}>
-              1x / jour conforme
-            </p>
-          </div>
-        </button>
-
-        {/* Card 4: DLC Secondaires */}
-        <button
-          onClick={() => setActiveTab('dlc')}
-          className={`p-3.5 sm:p-4 rounded-3xl border text-left transition-all cursor-pointer active:scale-95 flex flex-col justify-between min-h-[110px] sm:min-h-[120px] ${
-            activeTab === 'dlc'
-              ? 'bg-amber-600 border-amber-400 text-white shadow-lg shadow-amber-600/30 ring-2 ring-amber-400/40'
-              : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-850 hover:border-slate-700'
-          }`}
-        >
-          <div className="flex items-center justify-between w-full">
-            <div className={`p-2 rounded-2xl ${activeTab === 'dlc' ? 'bg-white/20 text-white' : 'bg-amber-500/20 text-amber-400'}`}>
-              <Tag className="w-5 h-5" />
-            </div>
-            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${activeTab === 'dlc' ? 'bg-white text-amber-900' : 'bg-slate-800 text-slate-400'}`}>
-              {filteredDlc.length} produits
-            </span>
-          </div>
-          <div className="mt-2">
-            <h3 className="text-xs sm:text-sm font-black tracking-tight leading-tight">
-              DLC Secondaires
-            </h3>
-            <p className={`text-[11px] font-medium mt-0.5 truncate ${activeTab === 'dlc' ? 'text-amber-100' : 'text-slate-400'}`}>
-              Périssables déconditionnés
-            </p>
-          </div>
-        </button>
-
+      {/* Onglets */}
+      <div className="no-print grid grid-cols-5 gap-2">
+        {tabBtns.map((t) => {
+          const Icon = t.icon;
+          const active = activeTab === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setActiveTab(t.id)}
+              className={`py-3 rounded-2xl flex flex-col items-center gap-1 font-black text-xs sm:text-sm transition-all cursor-pointer ${
+                active
+                  ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20'
+                  : 'bg-slate-900 border border-slate-800 text-slate-200 hover:bg-slate-800'
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span>{t.label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Button for Full Dossier Audit View (Toggle Open / Close) */}
-      <div className="no-print">
-        <button
-          type="button"
-          onClick={() => setActiveTab(activeTab === 'full_dossier' ? 'receipts' : 'full_dossier')}
-          className={`w-full p-3.5 rounded-2xl border text-center font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98 shadow-md ${
-            activeTab === 'full_dossier'
-              ? 'bg-rose-600 hover:bg-rose-700 border-rose-500 text-white shadow-rose-600/20'
-              : 'bg-amber-500 hover:bg-amber-400 border-amber-400 text-slate-950 shadow-amber-500/20'
-          }`}
-        >
-          {activeTab === 'full_dossier' ? (
-            <>
-              <X className="w-4 h-4 stroke-[3]" />
-              <span>✕ Fermer / Masquer le Dossier Sanitaire</span>
-            </>
-          ) : (
-            <>
-              <FileText className="w-4 h-4" />
-              <span>📑 Voir le Dossier d'Audit Complet Officiel (Format PDF A4)</span>
-            </>
+      {/* FACTURES FOURNISSEURS (PDF) */}
+      {activeTab === 'factures' && (
+        <div className="no-print space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {invoiceYears.map((y) => (
+              <button
+                key={y}
+                type="button"
+                onClick={() => setInvoiceYear(y)}
+                className={`px-5 py-2 rounded-2xl text-sm font-black cursor-pointer ${
+                  invoiceYear === y ? 'bg-white text-slate-950' : 'bg-slate-900 border border-slate-800 text-slate-300'
+                }`}
+              >
+                {y}
+              </button>
+            ))}
+            <span className="w-px h-6 bg-slate-800 mx-1" />
+            {['Tous', ...invoiceSuppliers].map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setInvoiceSupplier(s)}
+                className={`px-3 py-2 rounded-2xl text-xs font-bold cursor-pointer ${
+                  invoiceSupplier === s ? 'bg-amber-500 text-slate-950' : 'bg-slate-900 border border-slate-800 text-slate-300'
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+
+          {invoiceMonths.map(([month, list]) => (
+            <div key={month} className="space-y-1.5">
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 px-1 pt-1">{month}</h3>
+              {list.map((inv) => (
+                <button
+                  key={inv.file}
+                  type="button"
+                  onClick={() => setOpenInvoice(inv)}
+                  className="w-full bg-slate-900 border border-slate-800 hover:border-amber-500/50 active:scale-[0.99] px-4 py-3 rounded-2xl flex items-center justify-between gap-3 text-left transition-all cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <FileText className="w-5 h-5 text-amber-400 shrink-0" />
+                    <span className="text-sm font-black text-white truncate">{inv.supplier}</span>
+                    {inv.avoir && (
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300">Avoir</span>
+                    )}
+                  </div>
+                  <span className="text-sm font-bold text-slate-300 shrink-0">
+                    {new Date(inv.date + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                  </span>
+                </button>
+              ))}
+            </div>
+          ))}
+
+          {invoiceMonths.length === 0 && (
+            <div className="py-10 text-center text-slate-500 text-sm">Aucune facture</div>
           )}
-        </button>
-      </div>
+        </div>
+      )}
 
-      {/* ================= 3. FILTER & SEARCH TOOLBAR (NO-PRINT) ================= */}
+      {/* Visionneuse PDF */}
+      {openInvoice && (
+        <div className="no-print fixed inset-0 z-50 bg-slate-950/95 flex flex-col p-3 gap-2">
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-white font-black text-sm truncate">
+              {openInvoice.supplier} • {new Date(openInvoice.date + 'T12:00:00').toLocaleDateString('fr-FR')}
+            </div>
+            <div className="flex items-center gap-2">
+              <a
+                href={openInvoice.file}
+                target="_blank"
+                rel="noreferrer"
+                className="h-10 px-4 rounded-2xl bg-slate-800 text-white font-bold text-xs flex items-center"
+              >
+                Ouvrir
+              </a>
+              <button
+                type="button"
+                onClick={() => setOpenInvoice(null)}
+                className="h-10 w-10 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center cursor-pointer"
+                aria-label="Fermer"
+              >
+                <X className="w-5 h-5 stroke-[3]" />
+              </button>
+            </div>
+          </div>
+          <iframe src={openInvoice.file} title="Facture" className="flex-1 w-full rounded-2xl bg-white" />
+        </div>
+      )}
+
+      {/* Recherche & filtre date (autres onglets) */}
+      {activeTab !== 'factures' && activeTab !== 'full_dossier' && (
       <div className="no-print bg-slate-900 border border-slate-800 rounded-3xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-white">
         
         {/* Search */}
@@ -383,6 +384,8 @@ export const AuditReportModule: React.FC<AuditReportModuleProps> = ({
         </div>
 
       </div>
+
+      )}
 
       {/* ================= 4. TAB CONTENTS ================= */}
 
@@ -743,7 +746,7 @@ export const AuditReportModule: React.FC<AuditReportModuleProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => setActiveTab('receipts')}
+                onClick={() => setActiveTab('factures')}
                 className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all"
               >
                 <X className="w-3.5 h-3.5" />
@@ -959,7 +962,7 @@ export const AuditReportModule: React.FC<AuditReportModuleProps> = ({
           <div className="no-print mt-8 pt-4 border-t border-slate-200 flex items-center justify-center">
             <button
               type="button"
-              onClick={() => setActiveTab('receipts')}
+              onClick={() => setActiveTab('factures')}
               className="px-6 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-lg active:scale-95 transition-transform"
             >
               <X className="w-4 h-4 stroke-[3] text-rose-400" />
