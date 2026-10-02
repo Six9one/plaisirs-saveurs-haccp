@@ -45,6 +45,7 @@ import { WasteModule } from './components/WasteModule';
 import { DdpAuditSimulatorModule } from './components/DdpAuditSimulatorModule';
 import { AuditReportModule } from './components/AuditReportModule';
 import { UserGuideModule } from './components/UserGuideModule';
+import { TravauxModule } from './components/TravauxModule';
 import { ApprovedProductsModule } from './components/ApprovedProductsModule';
 import { SplashScreen } from './components/SplashScreen';
 import { PinModal } from './components/PinModal';
@@ -1235,6 +1236,8 @@ export const App: React.FC = () => {
             onDeleteSecondaryDlc={handleDeleteSecondaryDlc}
           />
         )}
+
+        {activeTab === 'travaux' && <TravauxModule />}
 
         {activeTab === 'user_guide' && (
           <UserGuideModule onClose={() => setActiveTab('home')} />

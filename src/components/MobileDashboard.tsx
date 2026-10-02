@@ -9,6 +9,7 @@ import {
   Trash2,
   FileSpreadsheet,
   HelpCircle,
+  Hammer,
 } from 'lucide-react';
 
 interface MobileDashboardProps {
@@ -23,6 +24,16 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
   pendingCleaningCount,
 }) => {
   const modules = [
+    {
+      id: 'travaux' as TabType,
+      title: 'Travaux réalisés',
+      subtitle: 'Photos après fermeture',
+      icon: Hammer,
+      cardBg: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-900/30 font-bold',
+      iconBg: 'bg-emerald-800 text-white',
+      badge: '📸 Photos',
+      badgeBg: 'bg-emerald-950 text-emerald-200',
+    },
     {
       id: 'temperatures' as TabType,
       title: 'Relevés',

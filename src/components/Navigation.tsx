@@ -7,6 +7,7 @@ import {
   Bug,
   FileSpreadsheet,
   HelpCircle,
+  Hammer,
 } from 'lucide-react';
 
 export type TabType =
@@ -19,7 +20,8 @@ export type TabType =
   | 'waste'
   | 'audit_report'
   | 'ddpp_simulator'
-  | 'user_guide';
+  | 'user_guide'
+  | 'travaux';
 
 interface NavigationProps {
   activeTab: TabType;
@@ -77,6 +79,12 @@ export const Navigation: React.FC<NavigationProps> = ({
       icon: FileSpreadsheet,
     },
     {
+      id: 'travaux' as TabType,
+      label: 'Travaux',
+      sublabel: 'Photos',
+      icon: Hammer,
+    },
+    {
       id: 'user_guide' as TabType,
       label: 'Guide & Tutos',
       sublabel: 'Fiches A4 & Aide',
@@ -87,7 +95,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   return (
     <nav className="bg-slate-900 border-b border-slate-800 text-white sticky top-20 z-20 shadow-md no-print py-2 px-2 sm:px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-1.5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-1.5">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
