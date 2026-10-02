@@ -52,21 +52,10 @@ export const SNOWFLAKE_SVG = `
 </svg>
 `;
 
-const PRINT_SCRIPT = `
-        <script>
-          window.onload = function() {
-            setTimeout(function() {
-              window.focus();
-              window.print();
-            }, 50);
-          };
-        </script>
-`;
-
 // Construit le document HTML complet du ticket
-function buildTicketDoc(htmlContent: string, format: ThermalPaperFormat, is2cmSticker: boolean, withScript: boolean): string {
-  const widthMm = format === '80mm' ? '76mm' : '52mm';
-  const pageHeight = is2cmSticker ? '25mm' : 'auto';
+function buildTicketDoc(htmlContent: string, is2cmSticker: boolean, pageHeightMm?: number): string {
+  // Imprimante Star TSP143 : rouleau 80 mm, zone imprimable 72 mm
+  const widthMm = '72mm';
   return `
     <!DOCTYPE html>
     <html lang="fr">
@@ -75,7 +64,7 @@ function buildTicketDoc(htmlContent: string, format: ThermalPaperFormat, is2cmSt
         <title>Ticket HACCP Plaisirs & Saveurs</title>
         <style>
           @page {
-            size: ${format === '80mm' ? '80mm auto' : `58mm ${pageHeight}`};
+            size: 80mm ${pageHeightMm ? pageHeightMm + 'mm' : '100mm'};
             margin: 0mm;
           }
           * {
@@ -123,45 +112,56 @@ function buildTicketDoc(htmlContent: string, format: ThermalPaperFormat, is2cmSt
         <div class="ticket-wrapper">
           ${htmlContent}
         </div>
-        ${withScript ? PRINT_SCRIPT : ''}
       </body>
     </html>
   `;
 }
 
-// Impression : 1) QZ Tray vers l'imprimante choisie (silencieux)  2) sinon impression Chrome (iframe invisible)
-export function printTicketHtml(htmlContent: string, format: ThermalPaperFormat = '58mm', is2cmSticker: boolean = false) {
+// Impression : mesure la hauteur exacte du ticket, puis
+// 1) QZ Tray vers l'imprimante choisie (silencieux, coupe à la fin)  2) sinon impression Chrome
+export function printTicketHtml(htmlContent: string, _format: ThermalPaperFormat = '80mm', is2cmSticker: boolean = false) {
+  void _format;
   playPrintBeep();
   const absolute = htmlContent.replace(/src="\//g, `src="${window.location.origin}/`);
-  qzPrintHtml(
-    buildTicketDoc(absolute, format, is2cmSticker, false),
-    format === '80mm' ? 80 : 58,
-    is2cmSticker ? 25 : undefined
-  ).then((ok) => {
-    if (!ok) printViaIframe(htmlContent, format, is2cmSticker);
-  });
-}
 
-function printViaIframe(htmlContent: string, format: ThermalPaperFormat, is2cmSticker: boolean) {
   let iframe = document.getElementById('thermal-print-iframe') as HTMLIFrameElement;
   if (!iframe) {
     iframe = document.createElement('iframe');
     iframe.id = 'thermal-print-iframe';
     iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
+    iframe.style.left = '-10000px';
+    iframe.style.top = '0';
+    iframe.style.width = '80mm';
+    iframe.style.height = '400mm';
     iframe.style.border = '0';
     iframe.style.opacity = '0';
     iframe.style.pointerEvents = 'none';
     document.body.appendChild(iframe);
   }
-  const iframeDoc = iframe.contentWindow?.document;
-  if (!iframeDoc) return;
-  iframeDoc.open();
-  iframeDoc.write(buildTicketDoc(htmlContent, format, is2cmSticker, true));
-  iframeDoc.close();
+  const doc = iframe.contentWindow?.document;
+  if (!doc) return;
+  doc.open();
+  doc.write(buildTicketDoc(absolute, is2cmSticker));
+  doc.close();
+
+  const run = () => {
+    const wrapper = doc.querySelector('.ticket-wrapper') as HTMLElement | null;
+    const px = wrapper ? wrapper.getBoundingClientRect().height : doc.body.scrollHeight;
+    // hauteur exacte + 3 mm de marge → la page s'arrête là et l'imprimante coupe
+    const heightMm = Math.max(is2cmSticker ? 25 : 30, Math.ceil((px * 25.4) / 96) + 3);
+    qzPrintHtml(buildTicketDoc(absolute, is2cmSticker, heightMm), 80, heightMm).then((ok) => {
+      if (ok) return;
+      // Repli : impression Chrome avec la page à la bonne hauteur
+      const style = doc.createElement('style');
+      style.textContent = `@page { size: 80mm ${heightMm}mm; margin: 0; }`;
+      doc.head.appendChild(style);
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+    });
+  };
+  const imgs = Array.from(doc.images);
+  Promise.all(imgs.map((im) => (im.complete ? Promise.resolve() : new Promise((r) => { im.onload = im.onerror = () => r(null); }))))
+    .then(() => setTimeout(run, 30));
 }
 
 // 1. Génération du ticket pour Ingrédient / Préparation (DLC Secondaire)

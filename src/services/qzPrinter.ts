@@ -117,10 +117,18 @@ export function setSelectedPrinter(name: string | null) {
 }
 
 // Imprime un document HTML complet. Renvoie false si QZ n'est pas utilisable (pas d'imprimante choisie / QZ absent).
+// Imprimante de la boutique, choisie automatiquement si aucune n'est sélectionnée
+const DEFAULT_PRINTER_MATCH = /TSP\s*1|TSP143|Star/i;
+
 export async function qzPrintHtml(html: string, widthMm: number, heightMm?: number): Promise<boolean> {
-  const printer = getSelectedPrinter();
-  if (!printer) return false;
   if (!(await qzConnect())) return false;
+  let printer = getSelectedPrinter();
+  if (!printer) {
+    const list = await qzListPrinters();
+    printer = list?.find((p) => DEFAULT_PRINTER_MATCH.test(p)) ?? null;
+    if (!printer) return false;
+    setSelectedPrinter(printer);
+  }
   const inch = (mm: number) => Math.round((mm / 25.4) * 1000) / 1000;
   const config = qz.configs.create(printer, {
     units: 'in',
@@ -132,7 +140,13 @@ export async function qzPrintHtml(html: string, widthMm: number, heightMm?: numb
   });
   try {
     await qz.print(config, [
-      { type: 'pixel', format: 'html', flavor: 'plain', data: html, options: { pageWidth: inch(widthMm) } },
+      {
+        type: 'pixel',
+        format: 'html',
+        flavor: 'plain',
+        data: html,
+        options: heightMm ? { pageWidth: inch(widthMm), pageHeight: inch(heightMm) } : { pageWidth: inch(widthMm) },
+      },
     ]);
     return true;
   } catch (e) {
