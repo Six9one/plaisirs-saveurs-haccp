@@ -331,14 +331,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                 <h1 className="text-lg sm:text-xl font-black text-white tracking-tight">
                   Étiquettes &amp; DLC Secondaires
                 </h1>
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-black px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Imprimante Thermique Prête
-                </span>
               </div>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">
-                Cliquez sur un carré = <strong className="text-amber-400">Impression automatique en 1 clic</strong> du sticker autocollant
-              </p>
             </div>
           </div>
 
@@ -569,9 +562,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                     
                     {/* En-tête du carré : Emoji + Bouton action discret */}
                     <div className="flex items-start justify-between gap-1">
-                      <span className="text-2xl sm:text-3xl filter drop-shadow">
-                        {item.emoji || '🥗'}
-                      </span>
+                      <span />
 
                       <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
                         <button
@@ -611,26 +602,10 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                       >
                         {item.name}
                       </h3>
-                      <span
-                        className={`text-[10px] font-bold block mt-0.5 truncate ${
-                          isJustPrinted ? 'text-emerald-950' : 'text-slate-400'
-                        }`}
-                      >
-                        {item.category}
-                      </span>
                     </div>
 
                     {/* Pied du carré : Durée DLC + Icône Imprimante */}
-                    <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-black">
-                      <span
-                        className={`px-2 py-0.5 rounded-lg font-mono ${
-                          isJustPrinted
-                            ? 'bg-slate-950 text-emerald-300'
-                            : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-                        }`}
-                      >
-                        +{item.durationHours}h
-                      </span>
+                    <div className="pt-2 border-t border-slate-800/80 flex items-center justify-end text-[11px] font-black">
 
                       <div
                         className={`flex items-center gap-1 ${
@@ -684,13 +659,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                     <h2 className="text-base font-black text-white tracking-tight">
                       Desserts &amp; Produits Décongelés
                     </h2>
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-cyan-500 text-slate-950 uppercase tracking-wider">
-                      Ticket 2 cm
-                    </span>
                   </div>
-                  <p className="text-[11px] text-cyan-200/70 font-semibold">
-                    Mention obligatoire : <strong className="text-cyan-300">« Ne pas recongeler »</strong> + Logo Flocon
-                  </p>
                 </div>
               </div>
 
@@ -752,9 +721,6 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                             (e.currentTarget as HTMLElement).style.display = 'none';
                           }}
                         />
-                        <span className="text-xl filter drop-shadow">
-                          {item.emoji || '🍰'}
-                        </span>
                       </div>
 
                       <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
@@ -794,26 +760,10 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                       >
                         {item.name}
                       </h3>
-                      <span
-                        className={`text-[10px] font-bold block mt-0.5 truncate uppercase tracking-wider ${
-                          isJustPrinted ? 'text-cyan-950' : 'text-cyan-400/80'
-                        }`}
-                      >
-                        ❄️ Décongelé • {item.category}
-                      </span>
                     </div>
 
                     {/* Pied du carré : Sticker 2cm badge + Impression directe */}
-                    <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-black">
-                      <span
-                        className={`px-2 py-0.5 rounded-lg font-mono ${
-                          isJustPrinted
-                            ? 'bg-slate-950 text-cyan-300'
-                            : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                        }`}
-                      >
-                        +{item.durationHours}h
-                      </span>
+                    <div className="pt-2 border-t border-slate-800/80 flex items-center justify-end text-[11px] font-black">
 
                       <div
                         className={`flex items-center gap-1 ${
@@ -822,7 +772,7 @@ export const SecondaryDlcModule: React.FC<SecondaryDlcModuleProps> = ({
                       >
                         <Printer className="w-3.5 h-3.5 stroke-[2.5]" />
                         <span className="text-[10px] uppercase tracking-wider font-extrabold">
-                          {isJustPrinted ? 'Imprimé !' : 'Ticket 2 cm'}
+                          {isJustPrinted ? 'Imprimé !' : 'Imprimer'}
                         </span>
                       </div>
                     </div>
