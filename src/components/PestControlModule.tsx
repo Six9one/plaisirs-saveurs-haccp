@@ -15,8 +15,6 @@ import {
   Plus,
   X,
   FileText,
-  Eye,
-  Calendar,
   Receipt,
   Truck,
   Printer,
@@ -50,7 +48,8 @@ export const PestControlModule: React.FC<PestControlModuleProps> = ({
   onAddInvoice,
 }) => {
   // Simple clean tab navigation: 'overview' | 'invoices' | 'passages' | 'stations' | 'contract'
-  const [activeTab, setActiveTab] = useState<'overview' | 'invoices' | 'passages' | 'stations' | 'contract'>('overview');
+  const [activeTab, setActiveTab] = useState<'invoices' | 'passages' | 'stations' | 'contract'>('invoices');
+  const [openPassageId, setOpenPassageId] = useState<string | null>(null);
 
   // Modals
   const [showAddStationModal, setShowAddStationModal] = useState<boolean>(false);
@@ -172,566 +171,195 @@ export const PestControlModule: React.FC<PestControlModuleProps> = ({
     setShowAddInvoiceModal(false);
   };
 
+  const tabs = [
+    { id: 'invoices' as const, label: 'Factures', icon: Receipt, count: invoices.length },
+    { id: 'passages' as const, label: 'Passages', icon: Truck, count: interventions.length },
+    { id: 'contract' as const, label: 'Contrat', icon: FileText, count: null },
+    { id: 'stations' as const, label: 'Pièges', icon: Bug, count: stations.length },
+  ];
+  const nextPassage = interventions.find((i) => i.status === 'Planifié');
+
   return (
-    <div className="space-y-4 max-w-4xl mx-auto pb-24 px-2 sm:px-0 animate-in fade-in duration-200">
-      
-      {/* ================= 1. CLEAN TOP BANNER ================= */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl text-white">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-inner">
-              <Bug className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-lg font-black text-white tracking-tight">
-                  Plan Anti-Nuisibles
-                </h1>
-                <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-emerald-500 text-slate-950 uppercase tracking-wider">
-                  ✓ Conforme DDPP
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">
-                Prestataire : <strong className="text-slate-200">EDEN VERT 3D (MJC 3D)</strong> • Contrat <span className="font-mono text-amber-400">CH-25-97</span>
-              </p>
-            </div>
-          </div>
+    <div className="space-y-3 max-w-4xl mx-auto pb-24 px-2 sm:px-0 animate-in fade-in duration-200">
 
-          {/* Quick status pill */}
-          <div className="flex items-center gap-3 bg-slate-950 p-2.5 px-4 rounded-2xl border border-slate-800 self-start sm:self-center">
-            <Calendar className="w-4 h-4 text-amber-400 shrink-0" />
-            <div className="text-xs">
-              <span className="text-[10px] text-slate-400 uppercase font-bold block">Prochain Passage</span>
-              <strong className="text-amber-400 font-bold">08 Septembre 2026</strong>
-            </div>
+      {/* En-tête minimal */}
+      <div className="flex items-center justify-between gap-3 px-1">
+        <div className="flex items-center gap-2.5">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+            <Bug className="w-5 h-5" />
           </div>
-
+          <div>
+            <h1 className="text-lg font-black text-white leading-tight">Nuisibles</h1>
+            <p className="text-xs text-slate-400">EDEN VERT 3D</p>
+          </div>
         </div>
+        <span className="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-300">
+          {nextPassage ? `Prochain passage : ${nextPassage.date}` : '✓ Tout est en règle'}
+        </span>
       </div>
 
-      {/* ================= 2. SIMPLE TOP TABS (4 BIG BUTTONS) ================= */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        
-        {/* Tab 1: Invoices */}
-        <button
-          type="button"
-          onClick={() => setActiveTab('invoices')}
-          className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
-            activeTab === 'invoices'
-              ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-lg shadow-amber-500/20 font-black'
-              : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700 font-bold'
-          }`}
-        >
-          <Receipt className={`w-5 h-5 ${activeTab === 'invoices' ? 'text-slate-950' : 'text-amber-400'}`} />
-          <span className="text-xs">Factures</span>
-          <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
-            activeTab === 'invoices' ? 'bg-slate-950 text-amber-400' : 'bg-slate-950 text-slate-400'
-          }`}>
-            {invoices.length} factures
-          </span>
-        </button>
-
-        {/* Tab 2: Passages */}
-        <button
-          type="button"
-          onClick={() => setActiveTab('passages')}
-          className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
-            activeTab === 'passages'
-              ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-lg shadow-amber-500/20 font-black'
-              : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700 font-bold'
-          }`}
-        >
-          <Truck className={`w-5 h-5 ${activeTab === 'passages' ? 'text-slate-950' : 'text-emerald-400'}`} />
-          <span className="text-xs">Passages & Visites</span>
-          <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
-            activeTab === 'passages' ? 'bg-slate-950 text-emerald-400' : 'bg-slate-950 text-slate-400'
-          }`}>
-            {interventions.length} passages
-          </span>
-        </button>
-
-        {/* Tab 3: Bait Stations */}
-        <button
-          type="button"
-          onClick={() => setActiveTab('stations')}
-          className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
-            activeTab === 'stations'
-              ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-lg shadow-amber-500/20 font-black'
-              : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700 font-bold'
-          }`}
-        >
-          <Bug className={`w-5 h-5 ${activeTab === 'stations' ? 'text-slate-950' : 'text-sky-400'}`} />
-          <span className="text-xs">Pièges & Boîtes</span>
-          <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
-            activeTab === 'stations' ? 'bg-slate-950 text-sky-400' : 'bg-slate-950 text-slate-400'
-          }`}>
-            {stations.length} postes
-          </span>
-        </button>
-
-        {/* Tab 4: Signed Contract */}
-        <button
-          type="button"
-          onClick={() => setActiveTab('contract')}
-          className={`p-3.5 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
-            activeTab === 'contract'
-              ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-lg shadow-amber-500/20 font-black'
-              : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700 font-bold'
-          }`}
-        >
-          <FileText className={`w-5 h-5 ${activeTab === 'contract' ? 'text-slate-950' : 'text-purple-400'}`} />
-          <span className="text-xs">Contrat Signé</span>
-          <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
-            activeTab === 'contract' ? 'bg-slate-950 text-purple-400' : 'bg-slate-950 text-slate-400'
-          }`}>
-            2 pages PDF
-          </span>
-        </button>
-
+      {/* 4 gros boutons */}
+      <div className="grid grid-cols-4 gap-2">
+        {tabs.map((t) => {
+          const Icon = t.icon;
+          const active = activeTab === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setActiveTab(t.id)}
+              className={`py-3 rounded-2xl flex flex-col items-center gap-1 font-black text-sm transition-all cursor-pointer ${
+                active
+                  ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20'
+                  : 'bg-slate-900 border border-slate-800 text-slate-200 hover:bg-slate-800'
+              }`}
+            >
+              <Icon className="w-6 h-6" />
+              <span>
+                {t.label}
+                {t.count !== null && <span className="opacity-60 font-bold"> {t.count}</span>}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* ================= 3. TAB CONTENT: OVERVIEW (DEFAULT) ================= */}
-      {activeTab === 'overview' && (
-        <div className="space-y-4 animate-in fade-in">
-          
-          {/* Quick Access Card 1: Factures */}
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-md">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <Receipt className="w-5 h-5 text-amber-400" />
-                <h2 className="text-sm font-black text-white uppercase tracking-wider">
-                  Dernières Factures EDEN VERT 3D
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setActiveTab('invoices')}
-                className="text-xs font-bold text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <span>Tout voir</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4">
-              {invoices.slice(0, 3).map((inv) => (
-                <div
-                  key={inv.id}
-                  onClick={() => setSelectedInvoice(inv)}
-                  className="bg-slate-950 border border-slate-800 hover:border-amber-500/50 p-3.5 rounded-2xl cursor-pointer transition-all flex flex-col justify-between group shadow-sm"
-                >
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-lg">
-                        {inv.invoiceNumber}
-                      </span>
-                      <span className="text-[10px] font-bold text-emerald-400">
-                        ✓ Payée
-                      </span>
-                    </div>
-                    <div className="text-xs font-bold text-white mt-2">
-                      {inv.saleDate}
-                    </div>
-                    <div className="text-[11px] text-slate-400">
-                      {inv.passageLabel}
-                    </div>
-                  </div>
-
-                  <div className="pt-3 mt-2 border-t border-slate-800/80 flex items-center justify-between">
-                    <strong className="text-xs font-mono text-white font-black">
-                      {inv.totalTtc.toFixed(2)} € TTC
-                    </strong>
-                    <span className="text-[10px] text-amber-400 font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                      <Eye className="w-3 h-3" /> Voir
-                    </span>
-                  </div>
+      {/* FACTURES */}
+      {activeTab === 'invoices' && (
+        <div className="space-y-2 animate-in fade-in">
+          {invoices.map((inv) => (
+            <button
+              key={inv.id}
+              type="button"
+              onClick={() => setSelectedInvoice(inv)}
+              className="w-full bg-slate-900 border border-slate-800 hover:border-amber-500/50 active:scale-[0.99] p-4 rounded-2xl flex items-center justify-between gap-3 text-left transition-all cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <Receipt className="w-5 h-5 text-amber-400 shrink-0" />
+                <div>
+                  <div className="text-sm font-black text-white">{inv.saleDate}</div>
+                  <div className="text-[11px] font-mono text-slate-500">{inv.invoiceNumber}</div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Quick Access Card 2: Passages */}
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-md">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <Truck className="w-5 h-5 text-emerald-400" />
-                <h2 className="text-sm font-black text-white uppercase tracking-wider">
-                  Passages du Technicien (Jérémy CLAIRE)
-                </h2>
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveTab('passages')}
-                className="text-xs font-bold text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <span>Tout voir</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-black font-mono text-white">{inv.totalTtc.toFixed(2)} €</span>
+                <span className="text-emerald-400 font-black">✓</span>
+                <ChevronRight className="w-4 h-4 text-slate-500" />
+              </div>
+            </button>
+          ))}
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setShowAddInvoiceModal(true)}
+              className="w-full p-3 rounded-2xl border border-dashed border-slate-700 text-slate-400 hover:text-amber-400 hover:border-amber-500/50 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <Plus className="w-4 h-4" /> Ajouter
+            </button>
+          )}
+        </div>
+      )}
 
-            <div className="space-y-2.5 pt-4">
-              {interventions.slice(0, 3).map((int) => (
-                <div
-                  key={int.id}
-                  className="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between gap-3 text-xs"
+      {/* PASSAGES */}
+      {activeTab === 'passages' && (
+        <div className="space-y-2 animate-in fade-in">
+          {interventions.map((int) => {
+            const isFuture = int.status === 'Planifié';
+            const open = openPassageId === int.id;
+            return (
+              <div key={int.id} className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setOpenPassageId(open ? null : int.id)}
+                  className="w-full p-4 flex items-center justify-between gap-3 text-left cursor-pointer hover:bg-slate-800/50"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-mono font-bold bg-slate-900 text-slate-300 px-2.5 py-1 rounded-xl border border-slate-800 shrink-0">
-                      {int.date}
-                    </span>
+                    <Truck className={`w-5 h-5 shrink-0 ${isFuture ? 'text-amber-400' : 'text-emerald-400'}`} />
                     <div>
-                      <strong className="text-white font-bold block">
-                        Passage #{int.passageNumber} • {int.type}
-                      </strong>
-                      <span className="text-[11px] text-slate-400">
-                        Lieux : {int.locations.join(', ')}
-                      </span>
+                      <div className="text-sm font-black text-white">{int.date}</div>
+                      <div className="text-[11px] text-slate-500">Passage {int.passageNumber}/{int.totalPassages}</div>
                     </div>
                   </div>
-
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg shrink-0">
-                    ✓ Effectué
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Quick Access Card 3: Contract Button */}
-          <div
-            onClick={() => setViewContractModal(true)}
-            className="bg-gradient-to-r from-amber-500/15 via-slate-900 to-slate-900 border border-amber-500/30 rounded-3xl p-5 cursor-pointer hover:border-amber-500 transition-all flex items-center justify-between gap-4 group"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center font-black shrink-0">
-                <FileText className="w-6 h-6" />
+                  <div className="flex items-center gap-3">
+                    <span className={`text-xs font-black ${isFuture ? 'text-amber-400' : 'text-emerald-400'}`}>
+                      {isFuture ? 'Prévu' : '✓ Fait'}
+                    </span>
+                    <ChevronRight className={`w-4 h-4 text-slate-500 transition-transform ${open ? 'rotate-90' : ''}`} />
+                  </div>
+                </button>
+                {open && (
+                  <div className="px-4 pb-4 text-xs text-slate-300 space-y-1">
+                    <div>{int.locations.join(' • ')}</div>
+                    {int.actions && int.actions.length > 0 && <div>{int.actions.join(' • ')}</div>}
+                    {int.observations && <div className="text-slate-400">{int.observations}</div>}
+                    {int.invoiceNumber && <div className="font-mono text-slate-500">{int.invoiceNumber}</div>}
+                  </div>
+                )}
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm sm:text-base font-black text-white">
-                    Contrat Officiel EDEN VERT 3D Signé
-                  </h3>
-                  <span className="text-[10px] font-black bg-emerald-500 text-slate-950 px-2 py-0.5 rounded-full">
-                    ✓ SIGNÉ
-                  </span>
-                </div>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Contrat N° <strong>CH-25-97</strong> • 4 passages/an (540,00 € HT) • Cliquez pour ouvrir les 2 pages
-                </p>
-              </div>
-            </div>
-
+            );
+          })}
+          {isAdmin && (
             <button
               type="button"
-              className="px-4 py-2 rounded-xl bg-amber-500 group-hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1.5 transition-colors shrink-0"
+              onClick={() => setShowAddInterventionModal(true)}
+              className="w-full p-3 rounded-2xl border border-dashed border-slate-700 text-slate-400 hover:text-amber-400 hover:border-amber-500/50 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              <Eye className="w-4 h-4" />
-              <span className="hidden sm:inline">Ouvrir le Contrat</span>
+              <Plus className="w-4 h-4" /> Ajouter
             </button>
-          </div>
-
+          )}
         </div>
       )}
 
-      {/* ================= 4. TAB CONTENT: FACTURES ================= */}
-      {activeTab === 'invoices' && (
-        <div className="space-y-3 animate-in fade-in">
-          
-          <div className="flex items-center justify-between p-2">
-            <h2 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
-              <Receipt className="w-4 h-4 text-amber-400" />
-              <span>Toutes les Factures EDEN VERT 3D ({invoices.length})</span>
-            </h2>
-
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={() => setShowAddInvoiceModal(true)}
-                className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black flex items-center gap-1 cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                <span>Ajouter une Facture</span>
-              </button>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 gap-3">
-            {invoices.map((inv) => (
-              <div
-                key={inv.id}
-                className="bg-slate-900 border border-slate-800 hover:border-amber-500/40 p-4 sm:p-5 rounded-3xl transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-white shadow-md"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2.5 flex-wrap">
-                    <span className="text-xs font-mono font-black bg-amber-500 text-slate-950 px-2.5 py-0.5 rounded-lg">
-                      {inv.invoiceNumber}
-                    </span>
-                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                      ✓ Payée Comptant
-                    </span>
-                    <span className="text-xs text-slate-400">
-                      Date : <strong className="text-slate-200">{inv.saleDate}</strong>
-                    </span>
-                  </div>
-
-                  <h3 className="text-sm font-black text-white pt-1">
-                    {inv.designation}
-                  </h3>
-
-                  <p className="text-xs text-slate-400">
-                    {inv.passageLabel} • Contrat : <span className="font-mono text-slate-300">{inv.contractNumber}</span>
-                  </p>
-
-                  {inv.observations && (
-                    <p className="text-[11px] text-slate-300 italic bg-slate-950 p-2 rounded-xl border border-slate-800/60 mt-1.5">
-                      "{inv.observations}"
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between sm:flex-col sm:items-end gap-3 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-800 shrink-0">
-                  <div className="text-left sm:text-right">
-                    <div className="text-[11px] text-slate-400">
-                      HT : {inv.totalHt.toFixed(2)} € (TVA 20%)
-                    </div>
-                    <div className="text-base font-black font-mono text-amber-400">
-                      {inv.totalTtc.toFixed(2)} € TTC
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setSelectedInvoice(inv)}
-                    className="px-4 py-2 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    <span>Visualiser la Facture</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-        </div>
-      )}
-
-      {/* ================= 5. TAB CONTENT: PASSAGES ================= */}
-      {activeTab === 'passages' && (
-        <div className="space-y-3 animate-in fade-in">
-          
-          <div className="flex items-center justify-between p-2">
-            <h2 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
-              <Truck className="w-4 h-4 text-emerald-400" />
-              <span>Historique des Passages & Planning</span>
-            </h2>
-
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={() => setShowAddInterventionModal(true)}
-                className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black flex items-center gap-1 cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                <span>Saisir un Passage</span>
-              </button>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            {interventions.map((int) => {
-              const isFuture = int.status === 'Planifié';
-
-              return (
-                <div
-                  key={int.id}
-                  className={`p-4 sm:p-5 rounded-3xl border transition-all text-white ${
-                    isFuture
-                      ? 'bg-slate-900/60 border-dashed border-amber-500/40'
-                      : 'bg-slate-900 border-slate-800 shadow-md'
-                  }`}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
-                    <div className="flex items-center gap-2.5">
-                      <span className={`text-xs font-mono font-black px-2.5 py-1 rounded-xl ${
-                        isFuture
-                          ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                          : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                      }`}>
-                        Passage #{int.passageNumber} / {int.totalPassages}
-                      </span>
-                      <strong className="text-sm font-black text-white">
-                        {int.date}
-                      </strong>
-                      {int.invoiceNumber && (
-                        <span className="text-[10px] font-mono font-bold bg-slate-950 text-slate-300 px-2 py-0.5 rounded-lg border border-slate-800">
-                          Facture {int.invoiceNumber}
-                        </span>
-                      )}
-                    </div>
-
-                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase self-start sm:self-auto ${
-                      isFuture
-                        ? 'bg-amber-500 text-slate-950 font-black'
-                        : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                    }`}>
-                      {isFuture ? '📅 Prochaine Visite' : '✓ ' + int.status}
-                    </span>
-                  </div>
-
-                  <div className="pt-3 space-y-2 text-xs">
-                    <div className="text-slate-300">
-                      <strong className="text-slate-400">Technicien :</strong> {int.technician} • <strong className="text-slate-400">Lieux :</strong> {int.locations.join(' • ')}
-                    </div>
-
-                    {int.actions && int.actions.length > 0 && (
-                      <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 text-slate-300">
-                        <strong className="text-[11px] text-slate-400 block mb-1">Traitements effectués :</strong>
-                        <ul className="list-disc list-inside space-y-0.5 text-[11px]">
-                          {int.actions.map((act, i) => (
-                            <li key={i}>{act}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {int.observations && (
-                      <div className="text-slate-300 text-[11px] italic bg-slate-950/50 p-2 rounded-lg border border-slate-800">
-                        "{int.observations}"
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-        </div>
-      )}
-
-      {/* ================= 6. TAB CONTENT: PIÈGES (BAIT STATIONS) ================= */}
-      {activeTab === 'stations' && (
-        <div className="space-y-3 animate-in fade-in">
-          
-          <div className="flex items-center justify-between p-2">
-            <h2 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
-              <Bug className="w-4 h-4 text-sky-400" />
-              <span>Postes d'Appâtage & Désinsectiseur ({stations.length})</span>
-            </h2>
-
-            <button
-              type="button"
-              onClick={() => setShowAddStationModal(true)}
-              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black flex items-center gap-1 cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[3]" />
-              <span>Nouveau Piège</span>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {stations.map((st) => (
-              <div
-                key={st.id}
-                className="bg-slate-900 border border-slate-800 rounded-3xl p-4 flex flex-col justify-between space-y-3 shadow-md"
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-black px-2.5 py-1 rounded-xl bg-slate-950 border border-slate-800 text-amber-400">
-                      {st.code}
-                    </span>
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      ✓ {st.status}
-                    </span>
-                  </div>
-
-                  <div className="mt-2">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block">{st.type}</span>
-                    <strong className="text-sm font-black text-white block mt-0.5">{st.location}</strong>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
-                  <span className="text-[10px] text-slate-400">{st.lastChecked}</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedStation(st);
-                      setCheckStatus(st.status);
-                      setCheckNotes(st.notes || '');
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 text-xs font-bold transition-all cursor-pointer"
-                  >
-                    Contrôler
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-        </div>
-      )}
-
-      {/* ================= 7. TAB CONTENT: CONTRAT ================= */}
+      {/* CONTRAT */}
       {activeTab === 'contract' && (
-        <div className="space-y-4 animate-in fade-in">
-          
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-lg text-white space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
-              <div>
-                <h2 className="text-base font-black text-white">
-                  Contrat d'Hygiène EDEN VERT 3D (SARL MJC 3D)
-                </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  N° <strong>CH-25-97</strong> • 4 passages / an (540,00 € HT) • Technicien : Jérémy CLAIRE (02.35.03.84.59)
-                </p>
+        <div className="grid grid-cols-2 gap-3 animate-in fade-in">
+          {([1, 2] as const).map((page) => (
+            <button
+              key={page}
+              type="button"
+              onClick={() => {
+                setActiveContractPage(page);
+                setViewContractModal(true);
+              }}
+              className="bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-2 cursor-pointer transition-all"
+            >
+              <div className="h-64 rounded-xl overflow-hidden bg-white">
+                <img src={page === 1 ? contractP1 : contractP2} alt={`Page ${page}`} className="w-full h-full object-cover object-top" />
               </div>
+              <div className="text-sm font-black text-white pt-2">Page {page}</div>
+            </button>
+          ))}
+        </div>
+      )}
 
-              <button
-                type="button"
-                onClick={() => setViewContractModal(true)}
-                className="px-4 py-2 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md shadow-amber-500/20 cursor-pointer self-start sm:self-auto"
-              >
-                <Eye className="w-4 h-4" />
-                <span>Voir les 2 Pages Signées</span>
-              </button>
-            </div>
-
-            {/* Thumbnail cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div
-                onClick={() => {
-                  setActiveContractPage(1);
-                  setViewContractModal(true);
-                }}
-                className="p-3 bg-slate-950 rounded-2xl border border-slate-800 hover:border-amber-500/40 cursor-pointer transition-all"
-              >
-                <span className="text-xs font-bold text-slate-300 block mb-2">Page 1 : Prestations & Tarifs</span>
-                <div className="h-48 rounded-xl overflow-hidden bg-white border border-slate-800">
-                  <img src={contractP1} alt="Page 1" className="w-full h-full object-cover" />
-                </div>
+      {/* PIÈGES */}
+      {activeTab === 'stations' && (
+        <div className="grid grid-cols-2 gap-2 animate-in fade-in">
+          {stations.map((st) => (
+            <button
+              key={st.id}
+              type="button"
+              onClick={() => {
+                setSelectedStation(st);
+                setCheckStatus(st.status);
+                setCheckNotes(st.notes || '');
+              }}
+              className="bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-2xl p-4 text-left cursor-pointer transition-all"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-black text-amber-400">{st.code}</span>
+                <span className="text-emerald-400 font-black">✓</span>
               </div>
-
-              <div
-                onClick={() => {
-                  setActiveContractPage(2);
-                  setViewContractModal(true);
-                }}
-                className="p-3 bg-slate-950 rounded-2xl border-2 border-amber-500/40 hover:border-amber-500 cursor-pointer transition-all relative"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-slate-300">Page 2 : Signatures & Accord</span>
-                  <span className="text-[10px] font-black bg-amber-500 text-slate-950 px-2 py-0.5 rounded-md">
-                    ✓ SIGNÉ
-                  </span>
-                </div>
-                <div className="h-48 rounded-xl overflow-hidden bg-white border border-slate-800">
-                  <img src={contractP2} alt="Page 2" className="w-full h-full object-cover" />
-                </div>
-              </div>
-            </div>
-          </div>
-
+              <div className="text-sm font-black text-white mt-1">{st.location}</div>
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => setShowAddStationModal(true)}
+            className="rounded-2xl border border-dashed border-slate-700 text-slate-400 hover:text-amber-400 hover:border-amber-500/50 text-xs font-bold flex items-center justify-center gap-1.5 p-4 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" /> Ajouter
+          </button>
         </div>
       )}
 
