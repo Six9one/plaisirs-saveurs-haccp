@@ -9,6 +9,43 @@
   }
 }
 
+/* ===== Zone morte gauche de l'écran tactile (touches fantômes) =====
+   La largeur vient de src/config/screen.ts (DEAD_ZONE_LEFT).
+   La mise en page réserve réellement cet espace : rien n'y est jamais rendu. */
+:root {
+  --dead-zone-left: 100px; /* valeur par défaut, écrasée par screen.ts */
+  --dead-zone-active: 0px;
+}
+@media (min-width: 768px) {
+  :root {
+    --dead-zone-active: var(--dead-zone-left);
+  }
+}
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+/* Conteneur de l'application : démarre à X = zone morte.
+   Le transform en fait le bloc conteneur des éléments position:fixed
+   (modales, barres, toasts) : eux aussi restent hors de la zone morte. */
+.app-viewport {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: var(--dead-zone-active);
+  transform: translateZ(0);
+  overflow: hidden;
+}
+.app-scroll {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
 /* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
@@ -34,6 +71,20 @@
   body {
     background: white !important;
     color: black !important;
+  }
+  html,
+  body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .app-viewport {
+    position: static !important;
+    transform: none !important;
+    overflow: visible !important;
+  }
+  .app-scroll {
+    height: auto !important;
+    overflow: visible !important;
   }
   .no-print {
     display: none !important;
