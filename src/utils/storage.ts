@@ -13,6 +13,8 @@ import type {
   DdpAuditPoint,
   ApprovedProduct,
   AllergenItem,
+  IngredientSquare,
+  FrozenDessertSquare,
 } from '../types';
 
 import baderAvatar from '../assets/avatars/bader_l.jpg';
@@ -57,6 +59,40 @@ export const DEFAULT_SECONDARY_DLC: SecondaryDlcItem[] = [
     storageTemp: '+2°C à +4°C',
     notes: 'À consommer ou jeter d’ici demain matin.',
   }
+];
+
+export const DEFAULT_INGREDIENT_SQUARES: IngredientSquare[] = [
+  { id: 'ing_1', name: 'Tomates Tranchées', category: 'Snacking/Salé', durationHours: 24, emoji: '🍅', storageTemp: '+2°C à +4°C' },
+  { id: 'ing_2', name: 'Salade Lavée & Essorée', category: 'Snacking/Salé', durationHours: 48, emoji: '🥬', storageTemp: '+2°C à +4°C' },
+  { id: 'ing_3', name: 'Poulet Rôti Émietté', category: 'Snacking/Salé', durationHours: 48, emoji: '🍗', storageTemp: '+2°C à +4°C' },
+  { id: 'ing_4', name: 'Jambon Blanc (Entamé)', category: 'Snacking/Salé', durationHours: 48, emoji: '🥓', storageTemp: '+2°C à +4°C' },
+  { id: 'ing_5', name: 'Crème Pâtissière Vanille', category: 'Pâtisserie', durationHours: 48, emoji: '🍮', storageTemp: '+2°C à +4°C' },
+  { id: 'ing_6', name: 'Crème Mousseline / Chocolat', category: 'Pâtisserie', durationHours: 48, emoji: '🍫', storageTemp: '+2°C à +4°C' },
+  { id: 'ing_7', name: 'Fromage Râpé (Ouvert)', category: 'Matière Première Ouverte', durationHours: 72, emoji: '🧀', storageTemp: '+2°C à +4°C' },
+  { id: 'ing_8', name: 'Bouteille Blancs d’Œufs', category: 'Matière Première Ouverte', durationHours: 24, emoji: '🥚', storageTemp: '+2°C à +4°C' },
+  { id: 'ing_9', name: 'Bouteille Jaunes d’Œufs', category: 'Matière Première Ouverte', durationHours: 24, emoji: '🍳', storageTemp: '+2°C à +4°C' },
+  { id: 'ing_10', name: 'Sauce Mayonnaise Maison', category: 'Snacking/Salé', durationHours: 48, emoji: '🥣', storageTemp: '+2°C à +4°C' },
+  { id: 'ing_11', name: 'Béchamel Traiteur', category: 'Snacking/Salé', durationHours: 48, emoji: '🫕', storageTemp: '+3°C' },
+  { id: 'ing_12', name: 'Thon Émietté (Boîte ouverte)', category: 'Snacking/Salé', durationHours: 24, emoji: '🐟', storageTemp: '+2°C à +4°C' },
+  { id: 'ing_13', name: 'Mozzarella / Fêta Découpée', category: 'Snacking/Salé', durationHours: 48, emoji: '🥗', storageTemp: '+2°C à +4°C' },
+  { id: 'ing_14', name: 'Fruits Frais Découpés', category: 'Pâtisserie', durationHours: 24, emoji: '🍓', storageTemp: '+2°C à +4°C' },
+  { id: 'ing_15', name: 'Chantilly Maison', category: 'Pâtisserie', durationHours: 24, emoji: '🥛', storageTemp: '+2°C à +4°C' },
+  { id: 'ing_16', name: 'Pâtes / Pâtons Façonnés', category: 'Boulangerie', durationHours: 72, emoji: '🥐', storageTemp: '+4°C' },
+];
+
+export const DEFAULT_FROZEN_DESSERT_SQUARES: FrozenDessertSquare[] = [
+  { id: 'frz_1', name: 'Éclair Chocolat', category: 'Pâtisserie', durationHours: 24, emoji: '🍫' },
+  { id: 'frz_2', name: 'Éclair Café', category: 'Pâtisserie', durationHours: 24, emoji: '☕' },
+  { id: 'frz_3', name: 'Tartelette Framboise', category: 'Pâtisserie', durationHours: 24, emoji: '🫐' },
+  { id: 'frz_4', name: 'Tarte Citron Meringuée', category: 'Pâtisserie', durationHours: 48, emoji: '🍋' },
+  { id: 'frz_5', name: 'Gâteau Opéra', category: 'Pâtisserie', durationHours: 48, emoji: '🍰' },
+  { id: 'frz_6', name: 'Millefeuille', category: 'Pâtisserie', durationHours: 24, emoji: '🥞' },
+  { id: 'frz_7', name: 'Entremets 3 Chocolats', category: 'Pâtisserie', durationHours: 48, emoji: '🎂' },
+  { id: 'frz_8', name: 'Flan Pâtissier', category: 'Pâtisserie', durationHours: 48, emoji: '🍮' },
+  { id: 'frz_9', name: 'Tartelette Pommes Normande', category: 'Pâtisserie', durationHours: 48, emoji: '🍏' },
+  { id: 'frz_10', name: 'Macarons Assortis', category: 'Pâtisserie', durationHours: 72, emoji: '🍪' },
+  { id: 'frz_11', name: 'Fond de Tarte Cuit', category: 'Boulangerie', durationHours: 48, emoji: '🥧' },
+  { id: 'frz_12', name: 'Pain Spécial Cuit Décongelé', category: 'Boulangerie', durationHours: 24, emoji: '🥖' },
 ];
 
 export const DEFAULT_INCIDENTS: NonConformanceIncident[] = [
@@ -782,6 +818,9 @@ export const STORAGE_KEYS = {
   DDPP_AUDIT_POINTS: 'sp_ddpp_audit_points',
   APPROVED_PRODUCTS: 'sp_approved_products',
   ALLERGENS: 'sp_allergens',
+  INGREDIENT_SQUARES: 'sp_ingredient_squares',
+  FROZEN_DESSERT_SQUARES: 'sp_frozen_dessert_squares',
+  THERMAL_FORMAT: 'sp_thermal_format',
 };
 
 export function getStoredData<T>(key: string, defaultVal: T): T {

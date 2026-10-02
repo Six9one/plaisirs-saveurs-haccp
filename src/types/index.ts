@@ -83,7 +83,27 @@ export interface SecondaryDlcItem {
   lotOriginal?: string;
   storageTemp: string;
   notes?: string;
+  isFrozenDessert?: boolean;
 }
+
+export interface IngredientSquare {
+  id: string;
+  name: string;
+  category: 'Pâtisserie' | 'Boulangerie' | 'Snacking/Salé' | 'Matière Première Ouverte';
+  durationHours: number;
+  emoji?: string;
+  storageTemp?: string;
+  lotOriginal?: string;
+}
+
+export interface FrozenDessertSquare {
+  id: string;
+  name: string;
+  category: 'Pâtisserie' | 'Boulangerie' | 'Snacking/Salé';
+  durationHours: number;
+  emoji?: string;
+}
+
 
 export interface NonConformanceIncident {
   id: string;

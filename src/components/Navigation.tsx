@@ -54,7 +54,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     {
       id: 'secondary_dlc' as TabType,
       label: 'Étiquettes',
-      sublabel: 'DLC Secondaires',
+      sublabel: 'DLC & Décongélation',
       icon: Tag,
     },
     {

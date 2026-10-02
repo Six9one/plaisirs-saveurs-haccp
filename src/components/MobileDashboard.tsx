@@ -46,12 +46,12 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
     {
       id: 'secondary_dlc' as TabType,
       title: 'Étiquettes',
-      subtitle: 'DLC Secondaires',
+      subtitle: 'Stickers & Décongélation',
       icon: Tag,
-      cardBg: 'bg-pink-600 hover:bg-pink-700 text-white shadow-lg shadow-pink-900/30',
-      iconBg: 'bg-pink-800 text-white',
-      badge: 'J+3 / J+5',
-      badgeBg: 'bg-pink-950 text-pink-200',
+      cardBg: 'bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-900/30',
+      iconBg: 'bg-amber-800 text-white',
+      badge: '1-Clic 🖨️',
+      badgeBg: 'bg-amber-950 text-amber-200',
     },
     {
       id: 'cleaning' as TabType,
