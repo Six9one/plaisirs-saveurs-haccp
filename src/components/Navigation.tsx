@@ -5,6 +5,7 @@ import {
   Tag,
   Sparkles,
   Bug,
+  Trash2,
   FileSpreadsheet,
   HelpCircle,
   Hammer,
@@ -24,7 +25,7 @@ export type TabType =
   | 'travaux';
 
 interface NavigationProps {
-  activeTab: TabType;
+  activeTab: TabType | null;
   onTabChange: (tab: TabType) => void;
   pendingTemperaturesCount: number;
   pendingCleaningCount: number;
@@ -73,6 +74,12 @@ export const Navigation: React.FC<NavigationProps> = ({
       icon: Bug,
     },
     {
+      id: 'waste' as TabType,
+      label: 'Déchets',
+      sublabel: 'Invendus & Pertes',
+      icon: Trash2,
+    },
+    {
       id: 'audit_report' as TabType,
       label: 'Historique',
       sublabel: 'Factures & PDF',
@@ -95,7 +102,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   return (
     <nav className="bg-slate-900 border-b border-slate-800 text-white sticky top-20 z-20 shadow-md no-print py-2 px-2 sm:px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-1.5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-9 gap-1.5">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;

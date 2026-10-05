@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TabType } from './Navigation';
-import { Home, Thermometer, Sparkles, PackageCheck } from 'lucide-react';
+import { Home, Thermometer, Sparkles, Tag } from 'lucide-react';
 import type { User } from '../types';
 
 interface MobileNavBarProps {
@@ -42,13 +42,13 @@ export const MobileNavBar: React.FC<MobileNavBarProps> = ({
       </button>
 
       <button
-        onClick={() => onSelectTab('reception')}
+        onClick={() => onSelectTab('secondary_dlc')}
         className={`flex flex-col items-center gap-1 p-1.5 rounded-2xl transition-colors ${
-          activeTab === 'reception' ? 'text-amber-400 font-bold' : 'hover:text-white'
+          activeTab === 'secondary_dlc' ? 'text-amber-400 font-bold' : 'hover:text-white'
         }`}
       >
-        <PackageCheck className="w-5 h-5" />
-        <span className="text-[10px]">Réception</span>
+        <Tag className="w-5 h-5" />
+        <span className="text-[10px]">Étiquettes</span>
       </button>
 
       <button

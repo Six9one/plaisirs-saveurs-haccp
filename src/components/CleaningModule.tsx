@@ -19,6 +19,7 @@ import {
   Bell,
 } from 'lucide-react';
 import { compressImage } from '../services/imageStorage';
+import { formatCompletedAt } from '../utils/formatters';
 import {
   getNotificationPermission,
   requestNotificationPermission,
@@ -174,7 +175,7 @@ export const CleaningModule: React.FC<CleaningModuleProps> = ({
   const handleConfirmValidation = () => {
     if (!selectedTask) return;
     const finalOperator = selectedOperator.name;
-    const finalTime = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const finalTime = new Date().toISOString();
 
     if (onUpdateTask) {
       onUpdateTask(
@@ -478,7 +479,7 @@ export const CleaningModule: React.FC<CleaningModuleProps> = ({
                         )}
                       </div>
                       <span className="truncate">{task.completedBy ? task.completedBy.split(' ')[0] : 'Fait'}</span>
-                      <span className="text-white/70 font-mono text-[10px]">• {task.completedAt}</span>
+                      <span className="text-white/70 font-mono text-[10px]">• {formatCompletedAt(task.completedAt)}</span>
                     </div>
                   ) : (
                     <p className="text-[11px] text-white/80 font-semibold truncate mt-0.5 drop-shadow-xs">

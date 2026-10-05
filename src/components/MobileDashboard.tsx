@@ -10,29 +10,34 @@ import {
   FileSpreadsheet,
   HelpCircle,
   Hammer,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface MobileDashboardProps {
   onSelectModule: (tab: TabType) => void;
   pendingTemperaturesCount: number;
   pendingCleaningCount: number;
+  pestStationsCount: number;
+  onReportIncident: () => void;
 }
 
 export const MobileDashboard: React.FC<MobileDashboardProps> = ({
   onSelectModule,
   pendingTemperaturesCount,
   pendingCleaningCount,
+  pestStationsCount,
+  onReportIncident,
 }) => {
   const modules = [
     {
-      id: 'travaux' as TabType,
-      title: 'Travaux réalisés',
-      subtitle: 'Photos après fermeture',
-      icon: Hammer,
-      cardBg: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-900/30 font-bold',
-      iconBg: 'bg-emerald-800 text-white',
-      badge: '📸 Photos',
-      badgeBg: 'bg-emerald-950 text-emerald-200',
+      id: 'secondary_dlc' as TabType,
+      title: 'Étiquettes',
+      subtitle: 'Stickers & Décongélation',
+      icon: Tag,
+      cardBg: 'bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-900/30',
+      iconBg: 'bg-amber-800 text-white',
+      badge: '1-Clic 🖨️',
+      badgeBg: 'bg-amber-950 text-amber-200',
     },
     {
       id: 'temperatures' as TabType,
@@ -45,26 +50,6 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
       badgeBg: pendingTemperaturesCount > 0 ? 'bg-amber-400 text-slate-950' : 'bg-blue-950 text-blue-200',
     },
     {
-      id: 'reception' as TabType,
-      title: 'Réception',
-      subtitle: 'Lots Farines & Beurre',
-      icon: PackageCheck,
-      cardBg: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-900/30',
-      iconBg: 'bg-indigo-800 text-white',
-      badge: 'Livraisons',
-      badgeBg: 'bg-indigo-950 text-indigo-200',
-    },
-    {
-      id: 'secondary_dlc' as TabType,
-      title: 'Étiquettes',
-      subtitle: 'Stickers & Décongélation',
-      icon: Tag,
-      cardBg: 'bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-900/30',
-      iconBg: 'bg-amber-800 text-white',
-      badge: '1-Clic 🖨️',
-      badgeBg: 'bg-amber-950 text-amber-200',
-    },
-    {
       id: 'cleaning' as TabType,
       title: 'Nettoyage',
       subtitle: 'PND & Machines',
@@ -75,14 +60,14 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
       badgeBg: pendingCleaningCount > 0 ? 'bg-rose-500 text-white' : 'bg-emerald-950 text-emerald-200',
     },
     {
-      id: 'pest_control' as TabType,
-      title: 'Nuisibles',
-      subtitle: 'Pièges & EDEN VERT',
-      icon: Bug,
-      cardBg: 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-900/30',
-      iconBg: 'bg-purple-800 text-white',
-      badge: '4 Pièges',
-      badgeBg: 'bg-purple-950 text-purple-200',
+      id: 'reception' as TabType,
+      title: 'Réception',
+      subtitle: 'Lots Farines & Beurre',
+      icon: PackageCheck,
+      cardBg: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-900/30',
+      iconBg: 'bg-indigo-800 text-white',
+      badge: 'Livraisons',
+      badgeBg: 'bg-indigo-950 text-indigo-200',
     },
     {
       id: 'waste' as TabType,
@@ -95,6 +80,16 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
       badgeBg: 'bg-orange-950 text-orange-200',
     },
     {
+      id: 'pest_control' as TabType,
+      title: 'Nuisibles',
+      subtitle: 'Pièges & EDEN VERT',
+      icon: Bug,
+      cardBg: 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-900/30',
+      iconBg: 'bg-purple-800 text-white',
+      badge: `${pestStationsCount} pièges`,
+      badgeBg: 'bg-purple-950 text-purple-200',
+    },
+    {
       id: 'audit_report' as TabType,
       title: 'Historique & PDF',
       subtitle: 'Factures, PND & T°',
@@ -103,6 +98,17 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
       iconBg: 'bg-slate-950 text-amber-400',
       badge: '📄 Export PDF',
       badgeBg: 'bg-slate-950 text-white',
+      darkText: true,
+    },
+    {
+      id: 'travaux' as TabType,
+      title: 'Travaux réalisés',
+      subtitle: 'Photos après fermeture',
+      icon: Hammer,
+      cardBg: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-900/30 font-bold',
+      iconBg: 'bg-emerald-800 text-white',
+      badge: '📸 Photos',
+      badgeBg: 'bg-emerald-950 text-emerald-200',
     },
     {
       id: 'user_guide' as TabType,
@@ -116,8 +122,19 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
     },
   ];
 
+
   return (
     <div className="space-y-4 max-w-4xl mx-auto pb-20">
+      {/* Déclarer un problème (panne, produit suspect, nuisible…) */}
+      <button
+        type="button"
+        onClick={onReportIncident}
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-rose-600 hover:bg-rose-500 active:scale-[0.98] text-white font-black text-sm shadow-lg shadow-rose-900/30 transition-all"
+      >
+        <AlertTriangle className="w-5 h-5" />
+        Signaler un problème / incident
+      </button>
+
       {/* 2-Column on mobile / 4-Column on desktop */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
         {modules.map((mod) => {
@@ -140,8 +157,8 @@ export const MobileDashboard: React.FC<MobileDashboardProps> = ({
               </div>
 
               <div className="mt-3">
-                <h3 className="text-base font-black tracking-tight text-white">{mod.title}</h3>
-                <p className="text-xs text-white/80 font-medium truncate mt-0.5">{mod.subtitle}</p>
+                <h3 className={`text-base font-black tracking-tight ${mod.darkText ? 'text-slate-950' : 'text-white'}`}>{mod.title}</h3>
+                <p className={`text-xs font-medium truncate mt-0.5 ${mod.darkText ? 'text-slate-900/80' : 'text-white/80'}`}>{mod.subtitle}</p>
               </div>
             </button>
           );

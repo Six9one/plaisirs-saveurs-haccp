@@ -30,3 +30,27 @@ export function safeFormatDateTime(dateStr?: string): string {
     return dateStr;
   }
 }
+
+/** Date + heure lisibles pour une validation ; les anciennes valeurs "HH:MM" sont affichées telles quelles. */
+export function formatCompletedAt(value?: string): string {
+  if (!value) return '--';
+  if (/^\d{1,2}:\d{2}$/.test(value)) return value;
+  return safeFormatDateTime(value);
+}
+
+/** Une machine validée doit-elle repasser "à faire" (nouveau jour / semaine / mois) ? */
+export function isCleaningDueAgain(task: { completedAt?: string; frequency: string }, now: Date = new Date()): boolean {
+  if (!task.completedAt) return true;
+  const done = new Date(task.completedAt);
+  if (isNaN(done.getTime())) return true; // ancien format sans date
+  if (task.frequency === 'Mensuel') {
+    return done.getFullYear() !== now.getFullYear() || done.getMonth() !== now.getMonth();
+  }
+  if (task.frequency === 'Hebdomadaire') {
+    const startOfWeek = new Date(now);
+    startOfWeek.setHours(0, 0, 0, 0);
+    startOfWeek.setDate(startOfWeek.getDate() - ((startOfWeek.getDay() + 6) % 7)); // lundi
+    return done < startOfWeek;
+  }
+  return done.toDateString() !== now.toDateString();
+}

@@ -132,101 +132,136 @@ export const subscribeToSupabaseRealtime = (
 };
 
 /**
- * Fetch all data from Supabase tables
+ * Lecture d'une table complète, page par page (aucune limite à 100 lignes : tout l'historique est conservé).
+ * Renvoie null en cas d'erreur, pour ne jamais fusionner une liste incomplète.
  */
+const PAGE_SIZE = 1000;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Row = Record<string, any>;
+
+const fetchWholeTable = async (supabase: SupabaseClient, table: string, orderBy?: string): Promise<Row[] | null> => {
+  const rows: Row[] = [];
+  for (let from = 0; ; from += PAGE_SIZE) {
+    let query = supabase.from(table).select('*');
+    if (orderBy) query = query.order(orderBy, { ascending: true });
+    const { data, error } = await query.range(from, from + PAGE_SIZE - 1);
+    if (error) {
+      console.warn(`[Supabase] lecture ${table} impossible :`, error.message);
+      return null;
+    }
+    rows.push(...(data || []));
+    if (!data || data.length < PAGE_SIZE) return rows;
+  }
+};
+
+const fromTargetRow = (t: Row): TemperatureTarget => ({
+  id: t.id,
+  name: t.name,
+  type: t.type,
+  zone: t.zone || 'Fournil',
+  minTemp: Number(t.min_temp),
+  maxTemp: Number(t.max_temp),
+  currentTemp: t.current_temp !== null && t.current_temp !== undefined ? Number(t.current_temp) : undefined,
+  photoUrl: t.photo_url || undefined,
+  lastChecked: t.last_checked || undefined,
+  status:
+    t.current_temp === null || t.current_temp === undefined
+      ? 'non_verifie'
+      : Number(t.current_temp) >= Number(t.min_temp) && Number(t.current_temp) <= Number(t.max_temp)
+      ? 'conforme'
+      : 'alerte',
+});
+
+const fromRecordRow = (r: Row): TemperatureRecord => ({
+  id: r.id,
+  targetId: r.target_id,
+  targetName: r.target_name,
+  value: Number(r.temp_value),
+  minTemp: r.min_allowed !== null ? Number(r.min_allowed) : 0,
+  maxTemp: r.max_allowed !== null ? Number(r.max_allowed) : 4,
+  status: r.status === 'alerte' ? 'alerte' : 'conforme',
+  timestamp: r.recorded_at,
+  userId: r.user_id || 'inconnu',
+  userName: r.operator_name || 'Inconnu',
+  period: r.period || (new Date(r.recorded_at).getHours() < 12 ? 'Matin' : 'Soir'),
+  correctiveAction: r.notes || undefined,
+});
+
+const fromReceiptRow = (r: Row): GoodsReceipt => ({
+  id: r.id,
+  supplier: r.supplier,
+  category: r.category,
+  truckTemp: r.truck_temp !== null ? Number(r.truck_temp) : undefined,
+  isTempCompliant: r.is_temp_compliant,
+  isPackageIntact: r.is_package_intact,
+  timestamp: r.timestamp,
+  receivedBy: r.received_by,
+  invoicePhotoUrl: r.invoice_photo_url || undefined,
+  goodsPhotoUrl: r.goods_photo_url || undefined,
+  photoUrl: r.invoice_photo_url || r.goods_photo_url || undefined,
+  status: r.status,
+  notes: r.notes || undefined,
+});
+
+const fromDlcRow = (d: Row): SecondaryDlcItem => ({
+  id: d.id,
+  productName: d.product_name,
+  category: d.category,
+  prepDate: d.prep_date,
+  durationHours: Number(d.duration_hours),
+  expiryDate: d.expiry_date,
+  preparedBy: d.prepared_by,
+  storageTemp: d.storage_temp || '+2°C à +4°C',
+  notes: d.notes || undefined,
+});
+
+const fromCleaningRow = (c: Row): CleaningTask => ({
+  id: c.id,
+  name: c.name,
+  zone: c.zone,
+  frequency: c.frequency,
+  period: c.period || undefined,
+  completed: Boolean(c.completed),
+  completedAt: c.completed_at || undefined,
+  completedBy: c.completed_by || undefined,
+  instructions: c.instructions || '',
+  // Pour les entrées d'historique, la remarque est stockée dans "instructions"
+  ...(String(c.id).startsWith('cl_log_') ? { notes: c.instructions || undefined } : {}),
+});
+
+/** Les identifiants des entrées d'historique de nettoyage (stockées dans la même table que les machines). */
+export const CLEANING_LOG_PREFIX = 'cl_log_';
+
 export const fetchAllFromSupabase = async (): Promise<{
-  targets?: TemperatureTarget[];
-  records?: TemperatureRecord[];
-  receipts?: GoodsReceipt[];
-  secondaryDlc?: SecondaryDlcItem[];
-  cleaningTasks?: CleaningTask[];
+  targets: TemperatureTarget[];
+  records: TemperatureRecord[];
+  receipts: GoodsReceipt[];
+  secondaryDlc: SecondaryDlcItem[];
+  cleaningTasks: CleaningTask[];
+  cleaningLogs: CleaningTask[];
 } | null> => {
   const supabase = getSupabaseClient();
   if (!supabase) return null;
 
   try {
-    const [targetsRes, recordsRes, receiptsRes, dlcRes, cleaningRes] = await Promise.all([
-      supabase.from('ps_haccp_targets').select('*'),
-      supabase.from('ps_haccp_records').select('*').order('created_at', { ascending: false }).limit(100),
-      supabase.from('ps_haccp_receipts').select('*').order('created_at', { ascending: false }).limit(100),
-      supabase.from('ps_haccp_secondary_dlc').select('*').order('created_at', { ascending: false }).limit(100),
-      supabase.from('ps_haccp_cleaning_tasks').select('*'),
+    const [targets, records, receipts, dlc, cleaning] = await Promise.all([
+      fetchWholeTable(supabase, 'ps_haccp_targets'),
+      fetchWholeTable(supabase, 'ps_haccp_records', 'created_at'),
+      fetchWholeTable(supabase, 'ps_haccp_receipts', 'created_at'),
+      fetchWholeTable(supabase, 'ps_haccp_secondary_dlc', 'created_at'),
+      fetchWholeTable(supabase, 'ps_haccp_cleaning_tasks'),
     ]);
+    if (!targets || !records || !receipts || !dlc || !cleaning) return null;
 
-    const mappedTargets: TemperatureTarget[] = (targetsRes.data || []).map((t) => ({
-      id: t.id,
-      name: t.name,
-      type: t.type,
-      zone: t.zone || 'Fournil',
-      minTemp: Number(t.min_temp),
-      maxTemp: Number(t.max_temp),
-      currentTemp: t.current_temp !== null ? Number(t.current_temp) : undefined,
-      photoUrl: t.photo_url || undefined,
-      lastChecked: t.last_checked || undefined,
-      status: t.current_temp === undefined ? 'non_verifie' : (t.current_temp >= t.min_temp && t.current_temp <= t.max_temp ? 'conforme' : 'alerte'),
-    }));
-
-    const mappedRecords: TemperatureRecord[] = (recordsRes.data || []).map((r) => ({
-      id: r.id,
-      targetId: r.target_id,
-      targetName: r.target_name,
-      value: Number(r.temp_value),
-      minTemp: r.min_allowed !== null ? Number(r.min_allowed) : 0,
-      maxTemp: r.max_allowed !== null ? Number(r.max_allowed) : 4,
-      status: r.status === 'alerte' ? 'alerte' : 'conforme',
-      timestamp: r.recorded_at,
-      userId: r.user_id || 'usr_01',
-      userName: r.operator_name || 'Sophie',
-      period: r.period || 'Matin',
-      correctiveAction: r.notes || undefined,
-    }));
-
-    const mappedReceipts: GoodsReceipt[] = (receiptsRes.data || []).map((r) => ({
-      id: r.id,
-      supplier: r.supplier,
-      category: r.category,
-      truckTemp: r.truck_temp !== null ? Number(r.truck_temp) : undefined,
-      isTempCompliant: r.is_temp_compliant,
-      isPackageIntact: r.is_package_intact,
-      timestamp: r.timestamp,
-      receivedBy: r.received_by,
-      invoicePhotoUrl: r.invoice_photo_url || undefined,
-      goodsPhotoUrl: r.goods_photo_url || undefined,
-      photoUrl: r.invoice_photo_url || r.goods_photo_url || undefined,
-      status: r.status,
-      notes: r.notes || undefined,
-    }));
-
-    const mappedDlc: SecondaryDlcItem[] = (dlcRes.data || []).map((d) => ({
-      id: d.id,
-      productName: d.product_name,
-      category: d.category,
-      prepDate: d.prep_date,
-      durationHours: Number(d.duration_hours),
-      expiryDate: d.expiry_date,
-      preparedBy: d.prepared_by,
-      storageTemp: d.storage_temp || '+2°C à +4°C',
-      notes: d.notes || undefined,
-    }));
-
-    const mappedCleaning: CleaningTask[] = (cleaningRes.data || []).map((c) => ({
-      id: c.id,
-      name: c.name,
-      zone: c.zone,
-      frequency: c.frequency,
-      period: c.period || undefined,
-      completed: c.completed,
-      completedAt: c.completed_at || undefined,
-      completedBy: c.completed_by || undefined,
-      instructions: c.instructions || undefined,
-    }));
-
+    const allCleaning = cleaning.map(fromCleaningRow);
     return {
-      targets: mappedTargets,
-      records: mappedRecords,
-      receipts: mappedReceipts,
-      secondaryDlc: mappedDlc,
-      cleaningTasks: mappedCleaning,
+      targets: targets.map(fromTargetRow),
+      records: records.map(fromRecordRow),
+      receipts: receipts.map(fromReceiptRow),
+      secondaryDlc: dlc.map(fromDlcRow),
+      cleaningTasks: allCleaning.filter((t) => !t.id.startsWith(CLEANING_LOG_PREFIX)),
+      cleaningLogs: allCleaning.filter((t) => t.id.startsWith(CLEANING_LOG_PREFIX)),
     };
   } catch (err) {
     console.error('[Supabase] fetch error:', err);
@@ -234,208 +269,125 @@ export const fetchAllFromSupabase = async (): Promise<{
   }
 };
 
+const uploadIfBase64 = async (url: string | undefined, prefix: string) =>
+  url && url.startsWith('data:image') ? uploadPhotoToSupabase(url, prefix) : url;
+
+const toRowFns = {
+  targets: async (t: TemperatureTarget) => ({
+    id: t.id,
+    name: t.name,
+    type: t.type,
+    zone: t.zone || 'Fournil',
+    min_temp: t.minTemp,
+    max_temp: t.maxTemp,
+    current_temp: t.currentTemp ?? null,
+    photo_url: (await uploadIfBase64(t.photoUrl, 'frigo')) ?? null,
+    last_checked: t.lastChecked ?? null,
+  }),
+  records: async (r: TemperatureRecord) => ({
+    id: r.id,
+    target_id: r.targetId,
+    target_name: r.targetName,
+    temp_value: r.value,
+    min_allowed: r.minTemp,
+    max_allowed: r.maxTemp,
+    is_compliant: r.status === 'conforme',
+    recorded_at: r.timestamp,
+    operator_name: r.userName,
+    status: r.status,
+    notes: r.correctiveAction ?? null,
+  }),
+  receipts: async (r: GoodsReceipt) => ({
+    id: r.id,
+    supplier: r.supplier,
+    category: r.category || 'Courses / Marchandises',
+    truck_temp: r.truckTemp ?? null,
+    is_temp_compliant: r.isTempCompliant ?? true,
+    is_package_intact: r.isPackageIntact ?? true,
+    timestamp: r.timestamp,
+    received_by: r.receivedBy || 'Utilisateur',
+    invoice_photo_url: (await uploadIfBase64(r.invoicePhotoUrl, 'facture')) ?? null,
+    goods_photo_url: (await uploadIfBase64(r.goodsPhotoUrl, 'marchandise')) ?? null,
+    status: r.status,
+    notes: r.notes ?? null,
+  }),
+  secondaryDlc: async (d: SecondaryDlcItem) => ({
+    id: d.id,
+    product_name: d.productName,
+    category: d.category,
+    prep_date: d.prepDate,
+    duration_hours: d.durationHours,
+    expiry_date: d.expiryDate,
+    prepared_by: d.preparedBy,
+    storage_temp: d.storageTemp ?? '+2°C à +4°C',
+    notes: d.notes ?? null,
+  }),
+  cleaningTasks: async (c: CleaningTask) => ({
+    id: c.id,
+    name: c.name,
+    zone: c.zone,
+    frequency: c.frequency,
+    period: c.period ?? null,
+    completed: c.completed,
+    completed_at: c.completedAt ?? null,
+    completed_by: c.completedBy ?? null,
+    instructions: c.instructions ?? null,
+  }),
+  cleaningLogs: async (c: CleaningTask) => ({
+    id: c.id,
+    name: c.name,
+    zone: c.zone,
+    frequency: c.frequency,
+    period: c.period ?? null,
+    completed: true,
+    completed_at: c.completedAt ?? null,
+    completed_by: c.completedBy ?? null,
+    instructions: c.notes ?? null,
+  }),
+};
+
+const TABLES = {
+  targets: 'ps_haccp_targets',
+  records: 'ps_haccp_records',
+  receipts: 'ps_haccp_receipts',
+  secondaryDlc: 'ps_haccp_secondary_dlc',
+  cleaningTasks: 'ps_haccp_cleaning_tasks',
+  cleaningLogs: 'ps_haccp_cleaning_tasks',
+} as const;
+
 /**
- * Push all local data to Supabase
+ * Envoie uniquement ce qui a changé sur cet appareil (ajouts, modifications, suppressions).
+ * Renvoie true seulement si tout a été accepté par Supabase.
  */
-export const pushAllToSupabase = async (data: {
-  targets?: TemperatureTarget[];
-  records?: TemperatureRecord[];
-  receipts?: GoodsReceipt[];
-  secondaryDlc?: SecondaryDlcItem[];
-  cleaningTasks?: CleaningTask[];
-}): Promise<boolean> => {
+export const pushChangesToSupabase = async <K extends keyof typeof toRowFns>(
+  collection: K,
+  upserts: Parameters<(typeof toRowFns)[K]>[0][],
+  deletes: string[]
+): Promise<boolean> => {
   const supabase = getSupabaseClient();
   if (!supabase) return false;
-
+  const table = TABLES[collection];
   try {
-    if (data.targets && data.targets.length > 0) {
-      const rows = data.targets.map((t) => ({
-        id: t.id,
-        name: t.name,
-        type: t.type,
-        zone: t.zone || 'Fournil',
-        min_temp: t.minTemp,
-        max_temp: t.maxTemp,
-        current_temp: t.currentTemp ?? null,
-        photo_url: t.photoUrl ?? null,
-        last_checked: t.lastChecked ?? null,
-      }));
-      await supabase.from('ps_haccp_targets').upsert(rows);
+    if (upserts.length > 0) {
+      const toRow = toRowFns[collection] as (item: unknown) => Promise<Row>;
+      const rows = await Promise.all(upserts.map((it) => toRow(it)));
+      const { error } = await supabase.from(table).upsert(rows);
+      if (error) {
+        console.warn(`[Supabase] envoi ${table} refusé :`, error.message);
+        return false;
+      }
     }
-
-    if (data.records && data.records.length > 0) {
-      const rows = data.records.map((r) => ({
-        id: r.id,
-        target_id: r.targetId,
-        target_name: r.targetName,
-        temp_value: r.value,
-        min_allowed: r.minTemp,
-        max_allowed: r.maxTemp,
-        is_compliant: r.status === 'conforme',
-        recorded_at: r.timestamp,
-        operator_name: r.userName,
-        status: r.status,
-        notes: r.correctiveAction ?? null,
-      }));
-      await supabase.from('ps_haccp_records').upsert(rows);
+    if (deletes.length > 0) {
+      const { error } = await supabase.from(table).delete().in('id', deletes);
+      if (error) {
+        console.warn(`[Supabase] suppression ${table} refusée :`, error.message);
+        return false;
+      }
     }
-
-    if (data.receipts && data.receipts.length > 0) {
-      const rows = data.receipts.map((r) => ({
-        id: r.id,
-        supplier: r.supplier,
-        category: r.category || 'Courses / Marchandises',
-        truck_temp: r.truckTemp ?? null,
-        is_temp_compliant: r.isTempCompliant ?? true,
-        is_package_intact: r.isPackageIntact ?? true,
-        timestamp: r.timestamp,
-        received_by: r.receivedBy || 'Utilisateur',
-        invoice_photo_url: r.invoicePhotoUrl ?? null,
-        goods_photo_url: r.goodsPhotoUrl ?? null,
-        status: r.status,
-        notes: r.notes ?? null,
-      }));
-      await supabase.from('ps_haccp_receipts').upsert(rows);
-    }
-
-    if (data.secondaryDlc && data.secondaryDlc.length > 0) {
-      const rows = data.secondaryDlc.map((d) => ({
-        id: d.id,
-        product_name: d.productName,
-        category: d.category,
-        prep_date: d.prepDate,
-        duration_hours: d.durationHours,
-        expiry_date: d.expiryDate,
-        prepared_by: d.preparedBy,
-        storage_temp: d.storageTemp ?? '+2°C à +4°C',
-        notes: d.notes ?? null,
-      }));
-      await supabase.from('ps_haccp_secondary_dlc').upsert(rows);
-    }
-
-    if (data.cleaningTasks && data.cleaningTasks.length > 0) {
-      const rows = data.cleaningTasks.map((c) => ({
-        id: c.id,
-        name: c.name,
-        zone: c.zone,
-        frequency: c.frequency,
-        period: c.period ?? null,
-        completed: c.completed,
-        completed_at: c.completedAt ?? null,
-        completed_by: c.completedBy ?? null,
-        instructions: c.instructions ?? null,
-      }));
-      await supabase.from('ps_haccp_cleaning_tasks').upsert(rows);
-    }
-
     return true;
   } catch (err) {
     console.error('[Supabase] push error:', err);
     return false;
-  }
-};
-
-/**
- * Direct single-item Supabase operations for instant responsiveness
- */
-export const insertReceiptToSupabase = async (receipt: GoodsReceipt): Promise<void> => {
-  const supabase = getSupabaseClient();
-  if (!supabase) return;
-  try {
-    let invoiceUrl = receipt.invoicePhotoUrl;
-    let goodsUrl = receipt.goodsPhotoUrl;
-
-    // Upload photos if base64
-    if (invoiceUrl && invoiceUrl.startsWith('data:image')) {
-      invoiceUrl = await uploadPhotoToSupabase(invoiceUrl, 'facture');
-    }
-    if (goodsUrl && goodsUrl.startsWith('data:image')) {
-      goodsUrl = await uploadPhotoToSupabase(goodsUrl, 'marchandise');
-    }
-
-    await supabase.from('ps_haccp_receipts').upsert({
-      id: receipt.id,
-      supplier: receipt.supplier,
-      category: receipt.category || 'Courses / Marchandises',
-      truck_temp: receipt.truckTemp ?? null,
-      is_temp_compliant: receipt.isTempCompliant ?? true,
-      is_package_intact: receipt.isPackageIntact ?? true,
-      timestamp: receipt.timestamp,
-      received_by: receipt.receivedBy || 'Utilisateur',
-      invoice_photo_url: invoiceUrl ?? null,
-      goods_photo_url: goodsUrl ?? null,
-      status: receipt.status,
-      notes: receipt.notes ?? null,
-    });
-  } catch (err) {
-    console.warn('[Supabase] insert receipt error:', err);
-  }
-};
-
-export const deleteReceiptFromSupabase = async (id: string): Promise<void> => {
-  const supabase = getSupabaseClient();
-  if (!supabase) return;
-  try {
-    await supabase.from('ps_haccp_receipts').delete().eq('id', id);
-  } catch (err) {
-    console.warn('[Supabase] delete receipt error:', err);
-  }
-};
-
-export const upsertTargetToSupabase = async (target: TemperatureTarget): Promise<void> => {
-  const supabase = getSupabaseClient();
-  if (!supabase) return;
-  try {
-    let photoUrl = target.photoUrl;
-    if (photoUrl && photoUrl.startsWith('data:image')) {
-      photoUrl = await uploadPhotoToSupabase(photoUrl, 'frigo');
-    }
-
-    await supabase.from('ps_haccp_targets').upsert({
-      id: target.id,
-      name: target.name,
-      type: target.type,
-      zone: target.zone || 'Fournil',
-      min_temp: target.minTemp,
-      max_temp: target.maxTemp,
-      current_temp: target.currentTemp ?? null,
-      photo_url: photoUrl ?? null,
-      last_checked: target.lastChecked ?? null,
-    });
-  } catch (err) {
-    console.warn('[Supabase] upsert target error:', err);
-  }
-};
-
-export const deleteTargetFromSupabase = async (id: string): Promise<void> => {
-  const supabase = getSupabaseClient();
-  if (!supabase) return;
-  try {
-    await supabase.from('ps_haccp_targets').delete().eq('id', id);
-  } catch (err) {
-    console.warn('[Supabase] delete target error:', err);
-  }
-};
-
-export const insertRecordToSupabase = async (record: TemperatureRecord): Promise<void> => {
-  const supabase = getSupabaseClient();
-  if (!supabase) return;
-  try {
-    await supabase.from('ps_haccp_records').insert({
-      id: record.id,
-      target_id: record.targetId,
-      target_name: record.targetName,
-      temp_value: record.value,
-      min_allowed: record.minTemp,
-      max_allowed: record.maxTemp,
-      is_compliant: record.status === 'conforme',
-      recorded_at: record.timestamp,
-      operator_name: record.userName,
-      status: record.status,
-      notes: record.correctiveAction ?? null,
-    });
-  } catch (err) {
-    console.warn('[Supabase] insert record error:', err);
   }
 };
 
