@@ -72,16 +72,16 @@ export const PestControlModule: React.FC<PestControlModuleProps> = ({
   // Form states for new intervention
   const [newIntDate, setNewIntDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [newIntPassageNum, setNewIntPassageNum] = useState<number>(1);
-  const [newIntTechnician, setNewIntTechnician] = useState<string>('Jérémy CLAIRE (Certibiocide)');
+  const [newIntTechnician, setNewIntTechnician] = useState<string>('');
   const [newIntInvoiceNum, setNewIntInvoiceNum] = useState<string>('');
-  const [newIntObs, setNewIntObs] = useState<string>('Passage trimestriel conforme.');
+  const [newIntObs, setNewIntObs] = useState<string>('');
 
   // Form states for new invoice
-  const [newInvNumber, setNewInvNumber] = useState<string>('F76-26-0' + Math.floor(1000 + Math.random() * 9000));
+  const [newInvNumber, setNewInvNumber] = useState<string>('');
   const [newInvDate, setNewInvDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [newInvHt, setNewInvHt] = useState<number>(135.0);
 
-  const isAdmin = currentUser?.name === 'Adel B.' || currentUser?.role === 'Responsable';
+  const isAdmin = currentUser?.role === 'Responsable';
 
   const handleInspect = (e: React.FormEvent) => {
     e.preventDefault();

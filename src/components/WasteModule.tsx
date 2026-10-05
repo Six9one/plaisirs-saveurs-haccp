@@ -32,7 +32,7 @@ export const WasteModule: React.FC<WasteModuleProps> = ({
   // Form states
   const [productName, setProductName] = useState<string>('');
   const [category, setCategory] = useState<WasteLog['category']>('Pâtons / Pâte');
-  const [quantityKg, setQuantityKg] = useState<string>('2.5');
+  const [quantityKg, setQuantityKg] = useState<string>('');
   const [reason, setReason] = useState<WasteLog['reason']>('DLC Dépassée');
   const [photoUrl, setPhotoUrl] = useState<string | undefined>(undefined);
   const [notes, setNotes] = useState<string>('');
@@ -97,6 +97,10 @@ export const WasteModule: React.FC<WasteModuleProps> = ({
       alert('Veuillez indiquer le nom de la denrée ou du produit.');
       return;
     }
+    if (!(parseFloat(quantityKg) > 0)) {
+      alert('Veuillez indiquer la quantité jetée (kg).');
+      return;
+    }
 
     const now = new Date();
     const formattedDate = `${now.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
@@ -108,12 +112,13 @@ export const WasteModule: React.FC<WasteModuleProps> = ({
       reason,
       method: 'Biodéchets Dédiés',
       discardedAt: formattedDate,
-      discardedBy: currentUser?.name || 'Adel B.',
+      discardedBy: currentUser?.name || 'Inconnu',
       photoUrl,
       notes: notes.trim() || undefined,
     });
 
     setProductName('');
+    setQuantityKg('');
     setNotes('');
     setPhotoUrl(undefined);
     setShowAddModal(false);

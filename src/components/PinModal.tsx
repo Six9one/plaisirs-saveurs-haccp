@@ -29,11 +29,11 @@ export const PinModal: React.FC<PinModalProps> = ({
       const newPin = pinInput + digit;
       setPinInput(newPin);
       if (newPin.length === 4 && selectedUserCandidate) {
-        if (newPin === selectedUserCandidate.pin || newPin === '1234') {
+        if (newPin === selectedUserCandidate.pin) {
           onSelectUser(selectedUserCandidate);
           onClose();
         } else {
-          setErrorMsg('Code PIN incorrect (Entrez 1234)');
+          setErrorMsg('Code PIN incorrect');
           setPinInput('');
         }
       }

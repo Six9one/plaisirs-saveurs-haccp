@@ -36,8 +36,16 @@ export class ErrorBoundary extends Component<Props, State> {
             L'application a redémarré suite à une mise à jour. Touchez le bouton ci-dessous pour réinitialiser l'affichage.
           </p>
           <button
-            onClick={() => {
-              localStorage.clear();
+            onClick={async () => {
+              // On vide seulement le cache de l'app (jamais les relevés enregistrés sur l'appareil)
+              try {
+                if ('caches' in window) {
+                  const keys = await caches.keys();
+                  await Promise.all(keys.map((k) => caches.delete(k)));
+                }
+              } catch {
+                /* ignore */
+              }
               window.location.reload();
             }}
             className="px-6 py-3 rounded-2xl bg-amber-500 text-slate-950 font-bold text-xs shadow-lg active:scale-95 cursor-pointer"

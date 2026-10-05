@@ -42,7 +42,7 @@ export const TemperatureModule: React.FC<TemperatureModuleProps> = ({
   const [uploadingTargetId, setUploadingTargetId] = useState<string | null>(null);
 
   // Manual Log form
-  const [tempInput, setTempInput] = useState<string>('3.0');
+  const [tempInput, setTempInput] = useState<string>('');
   const [correctiveAction, setCorrectiveAction] = useState<string>('');
 
   // Add Equipment form
@@ -170,12 +170,8 @@ export const TemperatureModule: React.FC<TemperatureModuleProps> = ({
 
   const openLogModal = (target: TemperatureTarget) => {
     setSelectedTarget(target);
-    const hasTodayCheck = isCheckedToday(target);
-    setTempInput(
-      hasTodayCheck && target.currentTemp !== undefined
-        ? target.currentTemp.toString()
-        : ((target.minTemp + target.maxTemp) / 2).toFixed(1)
-    );
+    // Champ vide : la valeur doit être lue sur le thermomètre, jamais proposée par l'app
+    setTempInput('');
     setCorrectiveAction('');
     setShowLogModal(true);
   };
@@ -191,13 +187,14 @@ export const TemperatureModule: React.FC<TemperatureModuleProps> = ({
       return;
     }
 
-    const opName = currentUser?.name || 'Adel B';
+    const opName = currentUser?.name || 'Inconnu';
     onAddRecord(selectedTarget.id, val, correctiveAction, opName);
     setShowLogModal(false);
     showToast(`✓ Relevé validé pour ${selectedTarget.name}`);
   };
 
-  const isCurrentInputAlert = selectedTarget
+  const hasTempValue = tempInput.trim() !== '' && !isNaN(parseFloat(tempInput));
+  const isCurrentInputAlert = selectedTarget && hasTempValue
     ? parseFloat(tempInput) < selectedTarget.minTemp || parseFloat(tempInput) > selectedTarget.maxTemp
     : false;
 
@@ -362,7 +359,7 @@ export const TemperatureModule: React.FC<TemperatureModuleProps> = ({
                           : 'bg-amber-500/95 text-slate-950'
                       }`}
                     >
-                      {isNegative ? '❄️ -18°C' : '🧊 +4°C'}
+                      {isNegative ? '❄️ -18°C' : target.type === 'chambre_pousse' ? '🥖 Pousse' : target.type === 'vitrine' ? `🧊 +${target.maxTemp}°C` : '🧊 +4°C'}
                     </span>
                   </div>
 
@@ -532,12 +529,28 @@ export const TemperatureModule: React.FC<TemperatureModuleProps> = ({
                     step="0.1"
                     value={tempInput}
                     onChange={(e) => setTempInput(e.target.value)}
-                    className={`flex-1 h-11 text-center font-mono text-xl font-black rounded-2xl border transition-all ${
-                      isCurrentInputAlert
+                    placeholder="Lire le thermomètre"
+                    autoFocus
+                    className={`flex-1 min-w-0 h-11 text-center font-mono text-xl font-black rounded-2xl border transition-all placeholder:text-sm placeholder:font-sans placeholder:font-semibold ${
+                      !hasTempValue
+                        ? 'border-slate-300 bg-white text-slate-900 placeholder:text-slate-400'
+                        : isCurrentInputAlert
                         ? 'border-rose-500 bg-rose-50 text-rose-700 focus:ring-2 focus:ring-rose-500/20'
                         : 'border-emerald-500 bg-emerald-50 text-emerald-700 focus:ring-2 focus:ring-emerald-500/20'
                     }`}
                   />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!hasTempValue) return;
+                      setTempInput((-parseFloat(tempInput)).toString());
+                    }}
+                    title="Changer le signe (température négative)"
+                    className="w-11 h-11 bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-900 rounded-2xl font-black text-base flex items-center justify-center transition-all cursor-pointer"
+                  >
+                    ±
+                  </button>
 
                   <button
                     type="button"
@@ -599,7 +612,8 @@ export const TemperatureModule: React.FC<TemperatureModuleProps> = ({
               <button
                 type="button"
                 onClick={handleSaveManualLog}
-                className="flex-1 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black rounded-2xl text-xs sm:text-sm shadow-md shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                disabled={!hasTempValue}
+                className="flex-1 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 text-white font-black rounded-2xl text-xs sm:text-sm shadow-md shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Valider le Relevé</span>

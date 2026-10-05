@@ -23,7 +23,7 @@ import {
   FileCheck2,
   Trash2,
 } from 'lucide-react';
-import { safeFormatTime } from '../utils/formatters';
+import { safeFormatTime, formatCompletedAt } from '../utils/formatters';
 import { SupplierInvoices } from './SupplierInvoices';
 
 interface AuditReportModuleProps {
@@ -46,6 +46,7 @@ export const AuditReportModule: React.FC<AuditReportModuleProps> = ({
   tasks,
   receipts,
   secondaryDlc,
+  incidents = [],
   users = DEFAULT_USERS,
   onDeleteReceipt,
   onDeleteRecord,
@@ -122,14 +123,14 @@ export const AuditReportModule: React.FC<AuditReportModuleProps> = ({
 
   const filteredCleanings = tasks.filter((t) => {
     if (!t.completed) return false;
-    const matchDate = isDateIncluded(t.completedAt ? new Date().toISOString() : undefined);
+    const matchDate = isDateIncluded(t.completedAt);
     const matchSearch =
       !searchQuery.trim() ||
       t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.zone.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (t.completedBy && t.completedBy.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchDate && matchSearch;
-  });
+  }).sort((a, b) => (b.completedAt || '').localeCompare(a.completedAt || ''));
 
   const filteredRecords = records.filter((rec) => {
     const matchDate = isDateIncluded(rec.timestamp);
@@ -483,7 +484,7 @@ export const AuditReportModule: React.FC<AuditReportModuleProps> = ({
                         </div>
                         <span className="font-bold text-white">{task.completedBy}</span>
                       </div>
-                      <span className="text-slate-400 font-mono text-[11px]">{task.completedAt}</span>
+                      <span className="text-slate-400 font-mono text-[11px]">{formatCompletedAt(task.completedAt)}</span>
                     </div>
 
                     {task.notes && (
@@ -789,17 +790,51 @@ export const AuditReportModule: React.FC<AuditReportModuleProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
-                {tasks.filter((t) => t.completed).map((t) => (
+                {tasks.filter((t) => t.completed && isDateIncluded(t.completedAt)).map((t) => (
                   <tr key={t.id} className="hover:bg-slate-50">
                     <td className="p-2 font-bold text-slate-900">{t.name} ({t.zone})</td>
                     <td className="p-2 text-slate-600">{t.frequency}</td>
-                    <td className="p-2 font-black text-emerald-700">Validé ✓ ({t.completedAt})</td>
+                    <td className="p-2 font-black text-emerald-700">Validé ✓ ({formatCompletedAt(t.completedAt)})</td>
                     <td className="p-2 font-medium text-slate-800">{t.completedBy}</td>
                     <td className="p-2 text-slate-600 italic">{t.notes || 'R.A.S.'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Incidents & Non-Conformités */}
+          <div className="my-6 space-y-2">
+            <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 flex items-center gap-2 border-b border-slate-300 pb-1">
+              <FileCheck2 className="w-4 h-4 text-rose-600" />
+              Incidents & Non-Conformités
+            </h3>
+            {incidents.length === 0 ? (
+              <p className="text-xs text-slate-500 italic">Aucun incident déclaré.</p>
+            ) : (
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-100 border-b border-slate-300 text-[11px] font-black uppercase text-slate-700">
+                    <th className="p-2">Date</th>
+                    <th className="p-2">Incident</th>
+                    <th className="p-2">Description</th>
+                    <th className="p-2">Action corrective</th>
+                    <th className="p-2">Déclaré par</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {incidents.map((inc) => (
+                    <tr key={inc.id}>
+                      <td className="p-2 font-mono text-slate-700">{inc.timestamp}</td>
+                      <td className="p-2 font-bold text-slate-900">{inc.title} ({inc.type})</td>
+                      <td className="p-2 text-slate-700">{inc.description}</td>
+                      <td className="p-2 text-slate-700">{inc.correctiveAction}</td>
+                      <td className="p-2 text-slate-800">{inc.reportedBy}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
 
           {/* Section 4: Plan de Lutte Anti-Nuisibles (EDEN VERT 3D) */}

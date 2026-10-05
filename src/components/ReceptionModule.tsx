@@ -143,8 +143,8 @@ export const ReceptionModule: React.FC<ReceptionModuleProps> = ({
         </div>
 
         {/* Action Buttons: Aligned Grid on Mobile / Flex on Desktop */}
-        <div className={`grid ${currentUser?.name === 'Adel B.' ? 'grid-cols-2' : 'grid-cols-1'} gap-2 w-full md:w-auto md:flex md:items-center shrink-0`}>
-          {currentUser?.name === 'Adel B.' && (
+        <div className={`grid ${currentUser?.role === 'Responsable' ? 'grid-cols-2' : 'grid-cols-1'} gap-2 w-full md:w-auto md:flex md:items-center shrink-0`}>
+          {currentUser?.role === 'Responsable' && (
             <button
               type="button"
               onClick={() => setShowHistoricalModal(true)}

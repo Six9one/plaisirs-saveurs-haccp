@@ -34,32 +34,11 @@ export const DEFAULT_CLEANING_TASKS: CleaningTask[] = [];
 
 export const DEFAULT_RECEIPTS: GoodsReceipt[] = [];
 
-export const DEFAULT_SECONDARY_DLC: SecondaryDlcItem[] = [
-  {
-    id: 'dlc_01',
-    productName: 'Crème Pâtissière Vanille Bourbon',
-    category: 'Pâtisserie',
-    prepDate: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
-    durationHours: 48,
-    expiryDate: new Date(Date.now() + 44 * 3600 * 1000).toISOString(),
-    preparedBy: 'Sophie (Chef Pâtissière)',
-    lotOriginal: 'Lait 4882 / OVO-9921',
-    storageTemp: '+2°C à +4°C',
-    notes: 'Refroidie immédiatement en cellule.',
-  },
-  {
-    id: 'dlc_02',
-    productName: 'Bouteille Blancs d’Œufs (Entamée)',
-    category: 'Matière Première Ouverte',
-    prepDate: new Date(Date.now() - 8 * 3600 * 1000).toISOString(),
-    durationHours: 24,
-    expiryDate: new Date(Date.now() + 16 * 3600 * 1000).toISOString(),
-    preparedBy: 'Said dz',
-    lotOriginal: 'OVO-9921',
-    storageTemp: '+2°C à +4°C',
-    notes: 'À consommer ou jeter d’ici demain matin.',
-  }
-];
+// Identifiants des anciennes données de démonstration (retirées au chargement)
+export const DEMO_IDS = new Set(['dlc_01', 'dlc_02', 'inc_01', 'w_01', 'w_02']);
+export const withoutDemo = <T extends { id: string }>(list: T[]): T[] => list.filter((it) => !DEMO_IDS.has(it.id));
+
+export const DEFAULT_SECONDARY_DLC: SecondaryDlcItem[] = [];
 
 export const DEFAULT_INGREDIENT_SQUARES: IngredientSquare[] = [
   { id: 'ing_1', name: 'Tomates Tranchées', category: 'Snacking/Salé', durationHours: 24, emoji: '🍅', storageTemp: '+2°C à +4°C' },
@@ -95,20 +74,7 @@ export const DEFAULT_FROZEN_DESSERT_SQUARES: FrozenDessertSquare[] = [
   { id: 'frz_12', name: 'Pain Spécial Cuit Décongelé', category: 'Boulangerie', durationHours: 24, emoji: '🥖' },
 ];
 
-export const DEFAULT_INCIDENTS: NonConformanceIncident[] = [
-  {
-    id: 'inc_01',
-    title: 'Thermostat Vitrine Pâtisserie décalé',
-    type: 'Panne Froid',
-    severity: 'Moyenne',
-    description: 'La vitrine affichait +7.2°C à 11h suite à forte chaleur en boutique.',
-    correctiveAction: 'Gâteaux déplacés 20 min en chambre froide, thermostat réglé à +3°C, contrôle effectué à +4.1°C à 11h45.',
-    reportedBy: 'Hamza M.',
-    timestamp: '19/08/2026 11:30',
-    status: 'Résolu',
-    resolvedAt: '19/08/2026 11:50',
-  }
-];
+export const DEFAULT_INCIDENTS: NonConformanceIncident[] = [];
 
 // 🐭 Pièges Anti-Nuisibles
 export const DEFAULT_PEST_STATIONS: PestBaitStation[] = [
@@ -371,30 +337,7 @@ export const DEFAULT_PEST_INVOICES: PestInvoice[] = [
 
 
 // 🗑️ Suivi des Déchets & Invendus
-export const DEFAULT_WASTE_LOGS: WasteLog[] = [
-  {
-    id: 'w_01',
-    productName: 'Pâtons Baguettes Tradition (Sur-fermentation)',
-    category: 'Pâtons / Pâte',
-    quantityKg: 4.5,
-    reason: 'Sur-fermentation',
-    discardedAt: '18/08/2026 12:00',
-    discardedBy: 'Hamza M.',
-    method: 'Biodéchets Dédiés',
-    notes: 'Pâte trop acide suite à coupure chambre de pousse.',
-  },
-  {
-    id: 'w_02',
-    productName: 'Reste Crème Pâtissière Chocolat J+2',
-    category: 'Pâtisseries',
-    quantityKg: 1.2,
-    reason: 'DLC Dépassée',
-    discardedAt: '19/08/2026 19:00',
-    discardedBy: 'Said dz',
-    method: 'Destruction Volontaire',
-    notes: 'Dépassement des 48h réglementaires - jeté immédiatement.',
-  }
-];
+export const DEFAULT_WASTE_LOGS: WasteLog[] = [];
 
 // 🛡️ Points de Contrôle DDPP Préfecture (Grille Officielle Alim'confiance)
 export const DEFAULT_DDPP_AUDIT_POINTS: DdpAuditPoint[] = [
@@ -807,6 +750,7 @@ export const STORAGE_KEYS = {
   TEMPERATURE_TARGETS: 'sp_temp_targets',
   TEMPERATURE_RECORDS: 'sp_temp_records',
   CLEANING_TASKS: 'sp_cleaning_tasks',
+  CLEANING_LOGS: 'sp_cleaning_logs',
   GOODS_RECEIPTS: 'sp_receipts',
   SECONDARY_DLC: 'sp_secondary_dlc',
   INCIDENTS: 'sp_incidents',
